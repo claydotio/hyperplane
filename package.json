@@ -1,0 +1,40 @@
+{
+  "name": "api-seed",
+  "private": true,
+  "description": "",
+  "main": "index.coffee",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./bin/test.sh",
+    "start": "./bin/start.sh",
+    "dev": "./bin/dev.sh",
+    "watch": "./bin/watch.sh"
+  },
+  "author": "",
+  "dependencies": {
+    "body-parser": "^1.12.2",
+    "clay-coffeescript-style-guide": "^1.0.0",
+    "coffee-script": "^1.9.1",
+    "cors": "^2.5.3",
+    "express": "^4.12.3",
+    "flare-gun": "^0.5.8",
+    "gulp-coffee-istanbul": "^0.7.0",
+    "joi": "^6.0.8",
+    "lodash": "^3.6.0",
+    "loglevel": "^1.2.0",
+    "nock": "^1.2.1",
+    "pm2": "^0.12.9",
+    "promise-router": "^0.2.0"
+  },
+  "devDependencies": {
+    "clay-chai": "0.0.3",
+    "flare-gun": "^0.5.8",
+    "gulp": "^3.8.11",
+    "gulp-coffeelint": "^0.4.0",
+    "gulp-mocha": "^2.0.0",
+    "gulp-nodemon": "^2.0.2",
+    "gulp-shell": "^0.4.0"
+  }
+}
