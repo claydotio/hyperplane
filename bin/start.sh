@@ -1,6 +1,6 @@
 #!/bin/sh
-[ -z "$LOG_DIR" ] && export LOG_DIR=/tmp/api_seed
-[ -z "$LOG_NAME" ] && export LOG_NAME=api_seed
+[ -z "$LOG_DIR" ] && export LOG_DIR=/tmp/hyperplane
+[ -z "$LOG_NAME" ] && export LOG_NAME=hyperplane
 export NODE_ENV=production
 
 mkdir -p $LOG_DIR

@@ -1,5 +1,5 @@
 {
-  "name": "api-seed",
+  "name": "hyperplane",
   "dependencies": {
     "body-parser": {
       "version": "1.12.3",
