@@ -1,7 +1,5 @@
-Flare = require 'flare-gun'
-
 server = require '../../index'
-flare = new Flare().express(server)
+flare = require('flare-gun').express(server.app)
 
 describe 'Health Check Routes', ->
   describe 'GET /healthcheck', ->
@@ -10,6 +8,7 @@ describe 'Health Check Routes', ->
         .get '/healthcheck'
         .expect 200,
           healthy: true
+          rethinkdb: true
 
   describe 'GET /ping', ->
     it 'pongs', ->

@@ -20,8 +20,14 @@ assertNoneMissing = (object) ->
 
 config =
   DEBUG: if env.DEBUG then env.DEBUG is '1' else true
-  PORT: env.API_PORT or env.PORT or 50010
+  PORT: env.HYPERPLANE_PORT or env.PORT or 50180
   ENV: env.NODE_ENV
+  JWT_ISSUER: 'hyperplane'
+  JWT_SECRET: env.HYPERPLANE_JWT_SECRET
+  ADMIN_PASSWORD: env.HYPERPLANE_ADMIN_PASSWORD
+  RETHINK:
+    DB: env.RETHINK_DB or 'hyperplane'
+    HOST: env.RETHINK_HOST or 'localhost'
   ENVS:
     DEV: 'development'
     PROD: 'production'
