@@ -26,7 +26,7 @@ config =
   JWT_SECRET: env.HYPERPLANE_JWT_SECRET
   ADMIN_PASSWORD: env.HYPERPLANE_ADMIN_PASSWORD
   RETHINK:
-    DB: env.RETHINK_DB or 'hyperplane'
+    DB: env.HYPERPLANE_RETHINK_DB or 'hyperplane'
     HOST: env.RETHINK_HOST or 'localhost'
   ENVS:
     DEV: 'development'

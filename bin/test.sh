@@ -4,5 +4,6 @@
 [ -z "$COVERAGE" ] && export COVERAGE=1
 export NODE_PATH=.
 export NODE_ENV=test
+export HYPERPLANE_RETHINK_DB=hyperplane_test
 
 node_modules/gulp/bin/gulp.js test

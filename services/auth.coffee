@@ -49,11 +49,11 @@ class AuthService
       next()
 
   assertAuthed: (req) ->
-    unless req.user
+    unless req.user?
       throw new router.Error status: 401, detail: 'Unauthorized'
 
   assertAdmin: (req) ->
-    unless req.user?.isAdmin
+    unless req.user?.id is User.ADMIN.id
       throw new router.Error status: 403, detail: 'Forbidden'
 
 

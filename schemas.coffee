@@ -15,9 +15,16 @@ adminUser =
 user =
   id: id
 
+experiment =
+  id: id
+  key: Joi.string()
+  globalPercent: Joi.number()
+  choices: Joi.array().items Joi.string()
+
 module.exports = {
   id: id
   user
   adminUser
   accessToken
+  experiment
 }
