@@ -15,6 +15,18 @@ loginAdmin = ->
       }
       .as 'admin'
 
+createUser = ->
+  return (flare) ->
+    flare
+      .post '/users'
+      .stash 'user'
+      .actor 'user', {
+        oauth:
+          token: ':user.accessToken'
+      }
+      .as 'user'
+
 module.exports = {
   loginAdmin
+  createUser
 }

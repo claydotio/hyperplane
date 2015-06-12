@@ -1,5 +1,6 @@
 Joi = require 'joi'
 log = require 'loglevel'
+router = require 'promise-router'
 
 schemas = require '../schemas'
 Experiment = require '../models/experiment'

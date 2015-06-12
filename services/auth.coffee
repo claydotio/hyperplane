@@ -38,10 +38,7 @@ class AuthService
 
     User.fromAccessToken accessToken
     .then (user) ->
-      unless user
-        return
-
-      # Authentication successful
+      # Authentication successful (unless user is null)
       req.user = user
     .catch (err) ->
       log.error err

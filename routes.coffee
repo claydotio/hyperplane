@@ -12,7 +12,7 @@ route = (verb, path, handlers...) ->
 
 routeAdmin = (verb, path, handlers...) ->
   authedHandlers = [AuthService.assertAdmin].concat handlers
-  router.route verb, path, authedHandlers...
+  route verb, path, authedHandlers...
 
 routePublic = router.route
 

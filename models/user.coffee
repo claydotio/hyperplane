@@ -44,10 +44,7 @@ class UserModel
       {issuer: config.JWT_ISSUER}
     )
     .then (decoded) =>
-      unless decoded
-        return null
-
-      @getById decoded.userId
+      @getById decoded?.userId
 
   create: (user) ->
     user = defaultUser user
