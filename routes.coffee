@@ -39,4 +39,7 @@ routeAdmin 'post', '/experiments',
 routeAdmin 'get', '/experiments',
   ExperimentCtrl.getAll
 
+routeAdmin 'put', '/experiments/:id',
+  ExperimentCtrl.update
+
 module.exports = router.getExpressRouter()

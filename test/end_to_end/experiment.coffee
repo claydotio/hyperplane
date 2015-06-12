@@ -75,3 +75,23 @@ describe 'Experiment Routes', ->
         .expect 200
         .get '/experiments'
         .expect 200, Joi.array().min(2).items schemas.experiment
+
+  describe 'PUT /experiments/:id', ->
+    it 'updates experiments', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'abc'
+            globalPercent: 100
+            choices: ['red', 'blue']
+          }
+        .expect 200
+        .stash 'experiment'
+        .put '/experiments/:experiment.id',
+          {
+            globalPercent: 5
+          }
+        .expect 200, _.defaults {
+          globalPercent: 5
+        }, schemas.experiment

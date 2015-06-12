@@ -1,3 +1,4 @@
+_ = require 'lodash'
 Joi = require 'joi'
 log = require 'loglevel'
 router = require 'promise-router'
@@ -26,6 +27,23 @@ class ExperimentCtrl
 
   getAll: ->
     Experiment.getAll()
+
+  update: (req) ->
+    id = req.params.id
+    diff = req.body
+
+    experimentUpdateSchema =
+      globalPercent: schemas.experiment.globalPercent
+
+    diff = _.pick diff, _.keys(experimentUpdateSchema)
+    updateValid = Joi.validate diff, experimentUpdateSchema
+
+    if updateValid.error
+      throw new router.Error status: 400, detail: updateValid.error.message
+
+    Experiment.updateById id, diff
+    .then ->
+      Experiment.getById id
 
 
 module.exports = new ExperimentCtrl()

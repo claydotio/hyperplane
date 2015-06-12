@@ -42,4 +42,11 @@ class Experiment
     .run()
     .map defaultExperiment
 
+  updateById: (id, diff) ->
+    r.table EXPERIMENTS_TABLE
+    .get id
+    .update diff
+    .run()
+
+
 module.exports = new Experiment()
