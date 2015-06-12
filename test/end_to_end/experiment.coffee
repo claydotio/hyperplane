@@ -1,6 +1,7 @@
 _ = require 'lodash'
 server = require '../../index'
 flare = require('flare-gun').express(server.app)
+Joi = require 'joi'
 
 schemas = require '../../schemas'
 config = require '../../config'
@@ -53,3 +54,24 @@ describe 'Experiment Routes', ->
               choices: ['red', 'blue']
             }
           .expect 403
+
+  describe 'GET /experiments', ->
+    it 'gets all experiments', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'abc'
+            globalPercent: 100
+            choices: ['red', 'blue']
+          }
+        .expect 200
+        .post '/experiments',
+          {
+            key: 'xyz'
+            globalPercent: 100
+            choices: ['red', 'blue']
+          }
+        .expect 200
+        .get '/experiments'
+        .expect 200, Joi.array().min(2).items schemas.experiment

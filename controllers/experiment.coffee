@@ -24,5 +24,8 @@ class ExperimentCtrl
     .tap (experiment) ->
       log.info "event=experiment_create, id=#{experiment.id}"
 
+  getAll: ->
+    Experiment.getAll()
+
 
 module.exports = new ExperimentCtrl()

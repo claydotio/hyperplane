@@ -37,4 +37,9 @@ class Experiment
     .run()
     .then defaultExperiment
 
+  getAll: ->
+    r.table EXPERIMENTS_TABLE
+    .run()
+    .map defaultExperiment
+
 module.exports = new Experiment()

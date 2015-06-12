@@ -36,4 +36,7 @@ routePublic 'post', '/users',
 routeAdmin 'post', '/experiments',
   ExperimentCtrl.create
 
+routeAdmin 'get', '/experiments',
+  ExperimentCtrl.getAll
+
 module.exports = router.getExpressRouter()
