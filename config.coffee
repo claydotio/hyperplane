@@ -28,6 +28,11 @@ config =
   RETHINK:
     DB: env.HYPERPLANE_RETHINK_DB or 'hyperplane'
     HOST: env.RETHINK_HOST or 'localhost'
+  INFLUX:
+    DB: env.HYPERPLANE_INFLUX_DB or 'hyperplane'
+    HOST: env.INFLUX_HOST or 'localhost'
+    PORT: 8086
+    RETENTION_DAYS: 60
   ENVS:
     DEV: 'development'
     PROD: 'production'

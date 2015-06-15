@@ -4,6 +4,7 @@ AuthService = require './services/auth'
 HealthCtrl = require './controllers/health'
 UserCtrl = require './controllers/user'
 ExperimentCtrl = require './controllers/experiment'
+EventCtrl = require './controllers/event'
 
 # Require authentication by default
 route = (verb, path, handlers...) ->
@@ -29,8 +30,15 @@ routePublic 'get', '/ping',
 routePublic 'post', '/users',
   UserCtrl.loginOrCreate
 
+#################
+# Authed Routes #
+#################
+
+route 'post', '/events/:namespace',
+  EventCtrl.create
+
 ###################
-# Private Routes  #
+# Admin Routes    #
 ###################
 
 routeAdmin 'post', '/experiments',

@@ -21,10 +21,19 @@ experiment =
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string()
 
+event =
+  namespace: Joi.string()
+  fields:
+    value: Joi.number()
+  tags:
+    event: Joi.string()
+    refererHost: Joi.string()
+
 module.exports = {
   id: id
   user
   adminUser
   accessToken
   experiment
+  event
 }

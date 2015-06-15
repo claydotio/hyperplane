@@ -1,27 +1,45 @@
 log = require 'loglevel'
 nock = require 'nock'
+Promise = require 'bluebird'
+request = require 'clay-request'
+_ = require 'lodash'
 
 config = require 'config'
 server = require 'index'
-
-DB = config.RETHINK.DB
-HOST = config.RETHINK.HOST
-
-r = require('rethinkdbdash')
-  host: HOST
-  db: DB
+r = require 'services/rethinkdb'
+InfluxService = require 'services/influxdb'
 
 before ->
-  nock.enableNetConnect('0.0.0.0')
+  nock.enableNetConnect()
 
   unless config.DEBUG
     log.disableAll()
 
-  r.dbList()
-  .contains DB
-  .do (result) ->
-    r.branch result,
-      r.dbDrop(DB),
-      {dopped: 0}
-  .run()
-  .then server.rethinkSetup
+  dropRethink = ->
+    r.dbList()
+    .contains config.RETHINK.DB
+    .do (result) ->
+      r.branch result,
+        r.dbDrop(config.RETHINK.DB),
+        {dopped: 0}
+    .run()
+
+  dropInflux = ->
+    InfluxService.getDatabases()
+    .then (databases) ->
+      hasDatabase = _.includes databases, config.INFLUX.DB
+
+      unless hasDatabase
+        return
+
+      InfluxService.dropDatabase(config.INFLUX.DB)
+
+  Promise.all [
+    dropRethink()
+    dropInflux()
+  ]
+  .then ->
+    Promise.all [
+      server.rethinkSetup()
+      server.influxSetup()
+    ]

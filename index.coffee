@@ -10,6 +10,7 @@ config = require './config'
 routes = require './routes'
 AuthService = require './services/auth'
 r = require './services/rethinkdb'
+InfluxService = require './services/influxdb'
 
 log.enableAll()
 
@@ -69,6 +70,15 @@ rethinkSetup = ->
               indexFn = index.fn
             createIndexIfNotExist table.NAME, indexName, indexFn, indexOpts
 
+influxSetup = ->
+  InfluxService.getDatabases()
+  .then (databases) ->
+    unless _.includes databases, config.INFLUX.DB
+      InfluxService.createDatabase config.INFLUX.DB
+  .then ->
+    InfluxService.alterRetentionPolicyDuration config.INFLUX.DB, 'default',
+      config.INFLUX.RETENTION_DAYS
+
 app = express()
 
 app.set 'x-powered-by', false
@@ -81,4 +91,5 @@ app.use routes
 module.exports = {
   app
   rethinkSetup
+  influxSetup
 }
