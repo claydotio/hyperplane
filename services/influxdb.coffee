@@ -21,6 +21,13 @@ class InfluxService
         #{encodeURIComponent(namespace)},#{keyValue(tags)} #{keyValue(fields)}
       """
 
+  find: (q) ->
+    request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {
+      qs:
+        q: q
+        db: config.INFLUX.DB
+    }
+
   createDatabase: (db) ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {
       qs:
@@ -39,7 +46,7 @@ class InfluxService
         q: 'SHOW DATABASES'
     }
     .then ({results}) ->
-      results?[0]?.series?[0].values?[0]
+      _.flatten results?[0]?.series?[0].values
 
   alterRetentionPolicyDuration: (db, policy, durationDays) ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {

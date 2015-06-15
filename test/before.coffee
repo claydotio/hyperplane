@@ -29,10 +29,8 @@ before ->
     .then (databases) ->
       hasDatabase = _.includes databases, config.INFLUX.DB
 
-      unless hasDatabase
-        return
-
-      InfluxService.dropDatabase(config.INFLUX.DB)
+      if hasDatabase
+        InfluxService.dropDatabase(config.INFLUX.DB)
 
   Promise.all [
     dropRethink()

@@ -41,6 +41,9 @@ route 'post', '/events/:namespace',
 # Admin Routes    #
 ###################
 
+routeAdmin 'get', '/events',
+  EventCtrl.find
+
 routeAdmin 'post', '/experiments',
   ExperimentCtrl.create
 

@@ -25,5 +25,18 @@ class EventCtrl
     .then ->
       return null
 
+  find: (req) ->
+    q = req.query?.q
+
+    valid = Joi.validate {q},
+    {
+      q: Joi.string()
+    }, {presence: 'required'}
+
+    if valid.error
+      throw new router.Error status: 400, detail: valid.error.message
+
+    Event.find q
+
 
 module.exports = new EventCtrl()
