@@ -26,6 +26,25 @@ describe 'Experiment Routes', ->
           choices: schemas.experiment.choices.length(2)
         }, schemas.experiment
 
+    it 'creates an experiment with weights', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'text_exp'
+            namespace: 'ex_name_space'
+            globalPercent: 100
+            choices: ['red', 'blue']
+            weights: [0.3, 0.7]
+          }
+        .expect 200, _.defaults {
+          key: 'text_exp'
+          namespace: 'ex_name_space'
+          globalPercent: 100
+          choices: schemas.experiment.choices.length(2)
+          weights: schemas.experiment.weights.length(2)
+        }, schemas.experiment
+
     describe '400', ->
       it 'fails if invalid params', ->
         flare

@@ -1,5 +1,10 @@
+Joi = require 'joi'
+router = require 'promise-router'
+
 User = require '../models/user'
 config = require '../config'
+schemas = require '../schemas'
+Experiment = require '../models/experiment'
 
 constTimeEqual = (a, b) ->
   c = 0
@@ -30,6 +35,19 @@ class UserCtrl
     .then (user) ->
       User.sanitize(user.id, user)
 
+  getExperiments: (req) ->
+    namespace = req.params.namespace
+
+    valid = Joi.validate {namespace},
+      namespace: schemas.experiment.namespace
+    , {presence: 'required'}
+
+    if valid.error
+      throw new router.Error status: 400, detail: valid.error.message
+
+    Experiment.assign req.user.id
+    .then (namespaces) ->
+      return namespaces[namespace]
 
 
 module.exports = new UserCtrl()

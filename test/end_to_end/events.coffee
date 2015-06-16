@@ -21,6 +21,52 @@ describe 'Event Routes', ->
               value: 1
           }
         .expect 204
+        .post '/events/doodledraw',
+          {
+            tags:
+              event: 'signup'
+            fields:
+              value: 1
+          }
+        .expect 204
+
+    describe '400', ->
+      it 'fails to create event if invalid value', ->
+        flare
+          .thru util.createUser()
+          .post '/events/doodledraw',
+            {
+              tags:
+                event: 'signup'
+                refererHost: 'google.com'
+              fields:
+                value: 'str'
+            }
+          .expect 400
+          .post '/events/doodledraw',
+            {
+              tags:
+                event: 'signup'
+                refererHost: 1
+              fields:
+                value: 1
+            }
+          .expect 400
+          .post '/events/doodledraw',
+            {
+              tags:
+                event: 'signup'
+                refererHost: 'google.com'
+            }
+          .expect 400
+          .post '/events/doodledraw',
+            {
+              tags:
+                refererHost: 'google.com'
+              fields:
+                value: 1
+            }
+          .expect 400
 
   describe 'GET /events/?q=', ->
     it 'gets experiment results', ->

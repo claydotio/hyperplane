@@ -37,6 +37,9 @@ routePublic 'post', '/users',
 route 'post', '/events/:namespace',
   EventCtrl.create
 
+route 'get', '/users/me/experiments/:namespace',
+  UserCtrl.getExperiments
+
 ###################
 # Admin Routes    #
 ###################

@@ -11,10 +11,7 @@ class ExperimentCtrl
     experiment = req.body or {}
 
     valid = Joi.validate experiment,
-      key: schemas.experiment.key
-      namespace: schemas.experiment.namespace
-      globalPercent: schemas.experiment.globalPercent
-      choices: schemas.experiment.choices
+    _.defaults {id: schemas.experiment.id.forbidden()}, schemas.experiment
     , {presence: 'required'}
 
     if valid.error

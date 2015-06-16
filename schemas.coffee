@@ -21,6 +21,7 @@ experiment =
   key: Joi.string()
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string()
+  weights: Joi.array().optional().items Joi.number()
 
 event =
   namespace: Joi.string()
@@ -28,7 +29,7 @@ event =
     value: Joi.number()
   tags:
     event: Joi.string()
-    refererHost: Joi.string()
+    refererHost: Joi.string().optional()
 
 module.exports = {
   id: id

@@ -8,8 +8,8 @@ Event = require '../models/event'
 
 class EventCtrl
   create: (req) ->
-    tags = _.pick(req.body?.tags or {}, Object.keys(schemas.event.tags))
-    fields = _.pick(req.body?.fields or {}, Object.keys(schemas.event.fields))
+    tags = req.body?.tags or {}
+    fields = req.body?.fields or {}
     namespace = req.params.namespace
 
     valid = Joi.validate {tags, fields, namespace}, schemas.event,

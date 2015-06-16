@@ -1,9 +1,11 @@
 _ = require 'lodash'
+Joi = require 'joi'
 server = require '../../index'
 flare = require('flare-gun').express(server.app)
 
 schemas = require '../../schemas'
 config = require '../../config'
+util = require './util'
 
 describe 'User Routes', ->
   describe 'POST /users', ->
@@ -68,3 +70,48 @@ describe 'User Routes', ->
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.user
+
+  describe 'GET /users/me/experiments/:namespace', ->
+    it 'gets users experiments in namespace', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'namespace_1_exp_1'
+            namespace: 'namespace_1'
+            globalPercent: 100
+            choices: ['red', 'blue']
+            weights: [1, 0]
+          }
+        .expect 200
+        .post '/experiments',
+          {
+            key: 'namespace_1_exp_2'
+            namespace: 'namespace_1'
+            globalPercent: 100
+            choices: ['purple', 'yellow', 'red', 'blue']
+          }
+        .expect 200
+        .post '/experiments',
+          {
+            key: 'namespace_1_exp_3'
+            namespace: 'namespace_1'
+            globalPercent: 0
+            choices: ['red', 'blue']
+          }
+        .expect 200
+        .post '/experiments',
+          {
+            key: 'namespace_null_exp_1'
+            namespace: 'namespace_null'
+            globalPercent: 100
+            choices: ['red', 'blue']
+          }
+        .expect 200
+        .thru util.createUser()
+        .get '/users/me/experiments/namespace_1'
+        .expect 200, {
+          namespace_1_exp_1: 'red'
+          namespace_1_exp_2:
+            Joi.string().valid('purple', 'yellow', 'red', 'blue')
+        }

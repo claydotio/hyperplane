@@ -1,6 +1,7 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
 uuid = require 'node-uuid'
+seedrandom = require 'seedrandom'
 
 r = require '../services/rethinkdb'
 config = require '../config'
@@ -16,6 +17,34 @@ defaultExperiment = (experiment) ->
     choices: []
   }
 
+assignExperiment = (experiment, userId) ->
+  seed = experiment.key + userId
+  rng = seedrandom seed
+
+  isInGlobalScope = rng() * 100 < experiment.globalPercent
+
+  unless isInGlobalScope
+    return undefined
+
+  {choices, weights} = experiment
+  weights ?= _.map _.range(choices.length), -> 1
+  weightSum = _.sum weights
+
+  normalizedWeights = _.reduce weights, (result, weight) ->
+    previous = _.last(result) or 0
+
+    result.concat [weight / weightSum + previous]
+  , []
+
+  choiceRand = rng()
+
+  return _.reduce normalizedWeights, (result, weight, index) ->
+    if result
+      return result
+
+    if choiceRand <= weight
+      return choices[index]
+  , undefined
 
 class Experiment
   RETHINK_TABLES: [
@@ -48,6 +77,18 @@ class Experiment
     .get id
     .update diff
     .run()
+
+  assign: (userId) =>
+    @getAll().then (experiments) ->
+      _.reduce experiments, (result, experiment) ->
+        assigned = assignExperiment experiment, userId
+
+        if assigned?
+          result[experiment.namespace] ?= {}
+          result[experiment.namespace][experiment.key] = assigned
+
+        return result
+      , {}
 
 
 module.exports = new Experiment()
