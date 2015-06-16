@@ -17,6 +17,7 @@ user =
 
 experiment =
   id: id
+  namespace: Joi.string()
   key: Joi.string()
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string()

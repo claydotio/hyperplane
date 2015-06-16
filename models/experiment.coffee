@@ -11,6 +11,7 @@ defaultExperiment = (experiment) ->
   _.defaults experiment, {
     id: uuid.v4()
     key: null
+    namespace: null
     globalPercent: 100
     choices: []
   }

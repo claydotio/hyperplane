@@ -12,6 +12,7 @@ class ExperimentCtrl
 
     valid = Joi.validate experiment,
       key: schemas.experiment.key
+      namespace: schemas.experiment.namespace
       globalPercent: schemas.experiment.globalPercent
       choices: schemas.experiment.choices
     , {presence: 'required'}
