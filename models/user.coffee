@@ -8,9 +8,13 @@ config = require '../config'
 
 USERS_TABLE = 'users'
 
+getTimeByHourInSeconds = ->
+  Math.floor(Date.now() / 1000 / 60 / 60) * 60 *  60
+
 defaultUser = (user) ->
   _.defaults user, {
     id: uuid.v4()
+    joinTimeS: getTimeByHourInSeconds()
   }
 
 ADMIN = defaultUser {

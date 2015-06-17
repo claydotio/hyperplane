@@ -540,6 +540,11 @@
       "from": "loglevel@^1.2.0",
       "resolved": "https://registry.npmjs.org/loglevel/-/loglevel-1.3.0.tgz"
     },
+    "negotiator": {
+      "version": "0.5.3",
+      "from": "negotiator@",
+      "resolved": "https://registry.npmjs.org/negotiator/-/negotiator-0.5.3.tgz"
+    },
     "node-uuid": {
       "version": "1.4.3",
       "from": "node-uuid@^1.4.3",
@@ -1839,6 +1844,16 @@
       "version": "2.0.11",
       "from": "rethinkdbdash@^2.0.11",
       "resolved": "https://registry.npmjs.org/rethinkdbdash/-/rethinkdbdash-2.0.11.tgz"
+    },
+    "seedrandom": {
+      "version": "2.4.0",
+      "from": "seedrandom@",
+      "resolved": "https://registry.npmjs.org/seedrandom/-/seedrandom-2.4.0.tgz"
+    },
+    "ua-parser-js": {
+      "version": "0.7.7",
+      "from": "ua-parser-js@",
+      "resolved": "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.7.tgz"
     }
   }
 }

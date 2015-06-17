@@ -93,7 +93,7 @@ describe 'Event Routes', ->
         .post '/events/gspace',
           {
             tags:
-              event: 'signup'
+              event: 'cancel'
               refererHost: 'google.com'
             fields:
               value: 1
@@ -102,6 +102,84 @@ describe 'Event Routes', ->
         .thru util.loginAdmin()
         .get '/events',
           q: "SELECT count(value) FROM gspace
-              WHERE event='signup' AND refererHost='google.com'"
+              WHERE refererHost='google.com'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
+
+    it 'gets experiment results for auto added tags', ->
+      flare
+        .thru util.createUser()
+        .post '/events/exspace',
+          {
+            tags:
+              event: 'view'
+            fields:
+              value: 1
+          }, {
+            headers:
+              'user-agent': 'Mozilla/5.0 (Linux; Android 4.4.2;
+                            Nexus 5 Build/KOT49H) AppleWebKit/537.36
+                            (KHTML, like Gecko) Chrome/32.0.1700.99
+                            Mobile Safari/537.36'
+          }
+        .expect 204
+        .post '/events/exspace',
+          {
+            tags:
+              event: 'cancel_order'
+            fields:
+              value: 1
+          }, {
+            headers:
+              'user-agent': 'Mozilla/5.0 (Linux; Android 4.4.2;
+                            Nexus 5 Build/KOT49H) AppleWebKit/537.36
+                            (KHTML, like Gecko) Chrome/32.0.1700.99
+                            Mobile Safari/537.36'
+          }
+        .expect 204
+        .thru util.createUser()
+        .post '/events/exspace',
+          {
+            tags:
+              event: 'view'
+            fields:
+              value: 1
+          }, {
+            headers:
+              'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0
+                            like Mac OS X) AppleWebKit/536.26
+                            (KHTML, like Gecko) Version/6.0
+                            Mobile/10A5376e Safari/8536.25'
+          }
+        .expect 204
+        .post '/events/exspace',
+          {
+            tags:
+              event: 'cancel_order'
+            fields:
+              value: 1
+          }, {
+            headers:
+              'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0
+                            like Mac OS X) AppleWebKit/536.26
+                            (KHTML, like Gecko) Version/6.0
+                            Mobile/10A5376e Safari/8536.25'
+              'accept-language': 'en-US'
+          }
+        .expect 204
+        .thru util.loginAdmin()
+        .get '/events',
+          q: "SELECT count(value) FROM exspace
+              WHERE event='view'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 2
+        .get '/events',
+          q: "SELECT count(value) FROM exspace
+              WHERE uaBrowserName='Chrome'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 2
+        .get '/events',
+          q: "SELECT count(value) FROM exspace
+              WHERE event='cancel_order' AND language='en-US'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1

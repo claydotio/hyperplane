@@ -17,6 +17,7 @@ class InfluxService
       method: 'POST'
       qs:
         db: config.INFLUX.DB
+        precision: 's'
       body: """
         #{encodeURIComponent(namespace)},#{keyValue(tags)} #{keyValue(fields)}
       """

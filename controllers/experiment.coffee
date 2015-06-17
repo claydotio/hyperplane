@@ -7,6 +7,7 @@ schemas = require '../schemas'
 Experiment = require '../models/experiment'
 
 class ExperimentCtrl
+  # TODO: verify that event key isnt reserved for another tag
   create: (req) ->
     experiment = req.body or {}
 
