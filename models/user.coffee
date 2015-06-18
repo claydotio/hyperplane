@@ -8,13 +8,24 @@ config = require '../config'
 
 USERS_TABLE = 'users'
 
+constTimeEqual = (a, b) ->
+  c = 0
+  i = 0
+  n = a.length
+  while i < n
+    c |= a[i] ^ b[i]
+    i += 1
+  c |= a.length ^ b.length
+
+  return c is 0
+
 getTimeByHourInSeconds = ->
   Math.floor(Date.now() / 1000 / 60 / 60) * 60 *  60
 
 defaultUser = (user) ->
   _.defaults user, {
     id: uuid.v4()
-    joinTimeS: getTimeByHourInSeconds()
+    joinTimeS: String getTimeByHourInSeconds()
   }
 
 ADMIN = defaultUser {
@@ -49,6 +60,13 @@ class UserModel
     )
     .then (decoded) =>
       @getById decoded?.userId
+
+  fromUsernameAndPassword: (username, password) =>
+    if username is @ADMIN.username and
+        constTimeEqual password, config.ADMIN_PASSWORD
+      @getById @ADMIN.id
+    else
+      Promise.resolve null
 
   create: (user) ->
     user = defaultUser user

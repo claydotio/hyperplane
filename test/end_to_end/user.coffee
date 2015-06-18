@@ -11,10 +11,11 @@ describe 'User Routes', ->
   describe 'POST /users', ->
     it 'logs in admin with username and password', ->
       flare
-        .post '/users',
+        .post '/users', {},
           {
-            username: 'admin'
-            password: config.ADMIN_PASSWORD
+            auth:
+              username: 'admin'
+              password: config.ADMIN_PASSWORD
           }
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
@@ -22,39 +23,21 @@ describe 'User Routes', ->
 
     it 'logs in admin with accessToken', ->
       flare
-        .post '/users',
+        .post '/users', {},
           {
-            username: 'admin'
-            password: config.ADMIN_PASSWORD
+            auth:
+              username: 'admin'
+              password: config.ADMIN_PASSWORD
           }
         .expect 200
         .stash 'admin'
         .post '/users', {}, {
-          oauth:
-            token: ':admin.accessToken'
+          auth:
+            username: ':admin.accessToken'
         }
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.adminUser
-
-    it 'returns new user if invalid admin info', ->
-      flare
-        .post '/users',
-          {
-            username: 'invalid'
-            password: config.ADMIN_PASSWORD
-          }
-        .expect 200, _.defaults {
-          accessToken: schemas.accessToken
-        }, schemas.user
-        .post '/users',
-          {
-            username: 'admin'
-            password: 'invalid'
-          }
-        .expect 200, _.defaults {
-          accessToken: schemas.accessToken
-        }, schemas.user
 
     it 'returns new user with accessToken', ->
       flare
@@ -64,12 +47,30 @@ describe 'User Routes', ->
         }, schemas.user
         .stash 'user'
         .post '/users', {}, {
-          oauth:
-            token: ':user.accessToken'
+          auth:
+            username: ':user.accessToken'
         }
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.user
+
+    describe '400', ->
+      it 'errors if invalid admin info', ->
+        flare
+          .post '/users', {},
+            {
+              auth:
+                username: 'invalid'
+                password: config.ADMIN_PASSWORD
+            }
+          .expect 401
+          .post '/users', {},
+            {
+              auth:
+                username: 'admin'
+                password: 'invalid'
+            }
+          .expect 401
 
   describe 'GET /users/me/experiments/:namespace', ->
     it 'gets users experiments in namespace', ->

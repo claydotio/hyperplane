@@ -3,9 +3,24 @@ _ = require 'lodash'
 
 config = require '../config'
 
-keyValue = (obj) ->
+escape = (str) ->
+  str
+  .replace /\//g, '\\\\'
+  .replace /,/g, '\\,'
+  .replace /"/g, '\\"'
+  .replace /\s/g, '\\ '
+
+join = (obj, quoteStrings) ->
   str = _.reduce obj, (res, val, key) ->
-    res += "#{encodeURIComponent(key)}=#{encodeURIComponent(val)},"
+    if _.isNumber(val) or _.isBoolean(val)
+      res + "#{escape(key)}=#{val},"
+    else if _.isString val
+      if quoteStrings
+        res + "#{escape(key)}=\"#{escape(val)}\","
+      else
+        res + "#{escape(key)}=#{escape(val)},"
+    else
+      res
   , ''
 
   str.slice(0, str.length - 1) # strip trailing comma
@@ -19,7 +34,7 @@ class InfluxService
         db: config.INFLUX.DB
         precision: 's'
       body: """
-        #{encodeURIComponent(namespace)},#{keyValue(tags)} #{keyValue(fields)}
+        #{escape(namespace)},#{join(tags)} #{join(fields, true)}
       """
 
   find: (q) ->

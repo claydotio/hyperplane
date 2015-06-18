@@ -7,43 +7,34 @@ User = require '../models/user'
 MAX_OAUTH_PARAMS = 20 # to avoid DOS (untested, unproven)
 
 class AuthService
+  # add user object as req.user
   middleware: (req, res, next) ->
-    # get access token and add user object as req.user
-    # accessToken = req.query?.accessToken
 
-    accessToken = null
-    hdr = req.header('Authorization')
+    unless /^Basic ./.test req.header('Authorization')
+      return next()
 
-    accessToken = if hdr and hdr.match(/^OAuth\b/i)
-      params = hdr.match(/[^=\s]+="[^"]*"(?:,\s*)?/g)
-      if params.length > MAX_OAUTH_PARAMS
-        null
-      else
-        i = 0
-        parsed = {}
-        while i < params.length
-          match = params[i].match(/([^=\s]+)="([^"]*)"/)
-          key = decodeURIComponent(match[1])
-          value = decodeURIComponent(match[2])
-          parsed[key] = value
-          i += 1
-        parsed['oauth_token']
-    else
-      null
+    b64Auth = req.header('Authorization')?.split(' ')[1]
 
-    unless accessToken
+    [username, password] = String(new Buffer(b64Auth, 'base64')).split(':')
+
+    unless username
       return next()
 
     # Note that web crawlers may trigger account creation
-
-    User.fromAccessToken accessToken
+    (if username and password
+      User.fromUsernameAndPassword username, password
+    else if username # accessToken
+      User.fromAccessToken username
+    )
     .then (user) ->
-      # Authentication successful (unless user is null)
-      req.user = user
-    .catch (err) ->
-      log.error err
-    .then ->
-      next()
+      if not user?
+        next new router.Error status: 401, detail: 'Unauthorized'
+      else
+        # Authentication successful
+        req.user = user
+        next()
+    .catch next
+
 
   assertAuthed: (req) ->
     unless req.user?

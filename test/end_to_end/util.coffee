@@ -3,26 +3,29 @@ config = require '../../config'
 loginAdmin = ->
   return (flare) ->
     flare
-      .post '/users',
+      .as 'nobody'
+      .post '/users', {},
         {
-          username: 'admin'
-          password: config.ADMIN_PASSWORD
+          auth:
+            username: 'admin'
+            password: config.ADMIN_PASSWORD
         }
       .stash 'admin'
       .actor 'admin', {
-        oauth:
-          token: ':admin.accessToken'
+        auth:
+          username: ':admin.accessToken'
       }
       .as 'admin'
 
 createUser = ->
   return (flare) ->
     flare
+      .as 'nobody'
       .post '/users'
       .stash 'user'
       .actor 'user', {
-        oauth:
-          token: ':user.accessToken'
+        auth:
+          username: ':user.accessToken'
       }
       .as 'user'
 
