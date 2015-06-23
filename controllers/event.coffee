@@ -6,6 +6,7 @@ UAParser = require 'ua-parser-js'
 Negotiator = require 'negotiator'
 Promise = require 'bluebird'
 
+config = require '../config'
 schemas = require '../schemas'
 Event = require '../models/event'
 Experiment = require '../models/experiment'
@@ -39,7 +40,11 @@ class EventCtrl
   create: (req) ->
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
+    timestamp = req.body?.timestamp or ''
     namespace = req.params.namespace
+
+    if config.ENV isnt config.ENVS.DEV and timestamp
+      throw new router.Error status: 400, detail: 'timestamp not allowed'
 
     valid = Joi.validate {
       tags: userTags
@@ -56,7 +61,7 @@ class EventCtrl
       getFields userFields, req, req.user
     ]
     .then ([tags, fields]) ->
-      Event.create namespace, tags, fields
+      Event.create namespace, tags, fields, timestamp
       .tap ->
         log.info "event=event_create, namespace=#{namespace},
                   tags=#{JSON.stringify(tags)},

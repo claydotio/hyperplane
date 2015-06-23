@@ -27,14 +27,14 @@ join = (obj, quoteStrings) ->
 
 
 class InfluxService
-  write: (namespace, tags, fields) ->
+  write: (namespace, tags, fields, timestamp = '') ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/write",
       method: 'POST'
       qs:
         db: config.INFLUX.DB
         precision: 's'
       body: """
-        #{escape(namespace)},#{join(tags)} #{join(fields, true)}
+        #{escape(namespace)},#{join(tags)} #{join(fields, true)} #{timestamp}
       """
 
   find: (q) ->

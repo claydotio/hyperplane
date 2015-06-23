@@ -1,5 +1,6 @@
 Joi = require 'joi'
 router = require 'promise-router'
+Promise = require 'bluebird'
 
 User = require '../models/user'
 config = require '../config'
