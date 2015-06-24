@@ -12,8 +12,8 @@ loginAdmin = ->
         }
       .stash 'admin'
       .actor 'admin', {
-        auth:
-          username: ':admin.accessToken'
+        headers:
+          'Authorization': 'Token :admin.accessToken'
       }
       .as 'admin'
 
@@ -24,8 +24,8 @@ createUser = ->
       .post '/users'
       .stash 'user'
       .actor 'user', {
-        auth:
-          username: ':user.accessToken'
+        headers:
+          'Authorization': 'Token :user.accessToken'
       }
       .as 'user'
 

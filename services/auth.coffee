@@ -1,32 +1,33 @@
 jwt = require 'jsonwebtoken'
 log = require 'loglevel'
+Promise = require 'bluebird'
 
 router = require 'promise-router'
 User = require '../models/user'
 
-MAX_OAUTH_PARAMS = 20 # to avoid DOS (untested, unproven)
-
 class AuthService
   # add user object as req.user
   middleware: (req, res, next) ->
+    authHeader = req.header('Authorization')
 
-    unless /^Basic ./.test req.header('Authorization')
+    unless authHeader
       return next()
 
-    b64Auth = req.header('Authorization')?.split(' ')[1]
+    [authScheme, authValue] = authHeader.split(' ')
 
-    [username, password] = String(new Buffer(b64Auth, 'base64')).split(':')
-
-    unless username
-      return next()
 
     # Note that web crawlers may trigger account creation
-    (if username and password
-      User.fromUsernameAndPassword username, password
-    else if username # accessToken
-      User.fromAccessToken username
-    )
-    .then (user) ->
+    (switch authScheme
+      when 'Basic'
+        decoded = String(new Buffer(authValue, 'base64'))
+        [username, password] = decoded.split(':')
+
+        User.fromUsernameAndPassword username, password
+      when 'Token'
+        User.fromAccessToken authValue
+      else
+        Promise.resolve null
+    ).then (user) ->
       if not user?
         next new router.Error status: 401, detail: 'Unauthorized'
       else

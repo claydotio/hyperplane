@@ -32,8 +32,8 @@ describe 'User Routes', ->
         .expect 200
         .stash 'admin'
         .post '/users', {}, {
-          auth:
-            username: ':admin.accessToken'
+          headers:
+            Authorization: 'Token :admin.accessToken'
         }
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
@@ -47,8 +47,8 @@ describe 'User Routes', ->
         }, schemas.user
         .stash 'user'
         .post '/users', {}, {
-          auth:
-            username: ':user.accessToken'
+          headers:
+            Authorization: 'Token :user.accessToken'
         }
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
