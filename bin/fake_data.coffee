@@ -87,10 +87,12 @@ Promise.all [
   Promise.map namespaces, (namespace) ->
     # 50 users
     Promise.map _.range(50), ->
-      activeDays = _.sample _.range(7)
-      joinDay = _.sample _.range(7)
+      daysToSimulate = 8
+      activeDays = _.sample [1, 1, 1, 2, 3]
+      joinDay = _.sample _.range(daysToSimulate)
       joinDayEpoch = String(
-        Math.floor (Date.now() - MS_IN_DAY * joinDay - 1) / 1000 / 60 / 60 / 24
+        Math.floor (Date.now() - MS_IN_DAY * (daysToSimulate - joinDay)) \
+          / 1000 / 60 / 60 / 24
       )
       userAgent = _.sample [
         'Mozilla/5.0 (Linux; Android 4.4.2;
@@ -120,9 +122,10 @@ Promise.all [
       flare
         .thru util.createUser({joinDay: joinDayEpoch})
         .thru (flare) ->
-          # user generates 7 days of activity
-          Promise.each _.range(7), (day) ->
-            timestamp = Math.floor((Date.now() - MS_IN_DAY * (6 - day)) / 1000)
+          Promise.each _.range(daysToSimulate), (day) ->
+            timestamp = Math.floor(
+              (Date.now() - MS_IN_DAY * (daysToSimulate - day)) / 1000
+            )
             refererHost = _.sample [
               'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
             ]
@@ -143,7 +146,7 @@ Promise.all [
 
             revenue = Math.floor Math.random() * 100
 
-            if day >= joinDay and day <= joinDay + activeDays
+            if day >= joinDay and day < joinDay + activeDays
               flare
                 .thru (flare) ->
                   Promise.map events, (event, index) ->
