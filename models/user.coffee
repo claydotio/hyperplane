@@ -23,6 +23,7 @@ defaultUser = (user) ->
   _.defaults user, {
     id: uuid.v4()
     joinDay: String Math.floor(Date.now() / 1000 / 60 / 60 / 24)
+    inviterJoinDay: null
   }
 
 ADMIN = defaultUser {

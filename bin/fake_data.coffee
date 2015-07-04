@@ -66,7 +66,7 @@ Promise.all [
         key: 'share_icon'
         namespace: namespace
         globalPercent: 100
-        choices: ['control', 'big:red', 'big:blue', 'small:red', 'small:blue']
+        choices: ['control', 'big|red', 'big|blue', 'small|red', 'small|blue']
       }
       {
         key: 'animation'
@@ -86,14 +86,18 @@ Promise.all [
   # for each app
   Promise.map namespaces, (namespace) ->
     # 50 users
-    Promise.map _.range(50), ->
+    Promise.map _.range(50), (index) ->
       daysToSimulate = 8
       activeDays = _.sample [1, 1, 1, 2, 3]
       joinDay = _.sample _.range(daysToSimulate)
+      joinDate = new Date Date.now() - MS_IN_DAY * (daysToSimulate - joinDay)
       joinDayEpoch = String(
-        Math.floor (Date.now() - MS_IN_DAY * (daysToSimulate - joinDay)) \
-          / 1000 / 60 / 60 / 24
+        Math.floor joinDate / 1000 / 60 / 60 / 24
       )
+      inviterJoinDay = if Math.random() > 0.5
+        String(parseInt(joinDayEpoch) - _.sample(_.range(1, 6)))
+      else
+        undefined
       userAgent = _.sample [
         'Mozilla/5.0 (Linux; Android 4.4.2;
                       Nexus 5 Build/KOT49H) AppleWebKit/537.36
@@ -120,7 +124,13 @@ Promise.all [
       ip = '127.0.0.1'
 
       flare
-        .thru util.createUser({joinDay: joinDayEpoch})
+        .thru util.createUser({
+          joinDay: joinDayEpoch
+          inviterJoinDay
+          namespace
+          # Avoid influxdb de-duplication by adding small value
+          timestamp: String Math.floor(joinDate / 1000 + index)
+        })
         .thru (flare) ->
           Promise.each _.range(daysToSimulate), (day) ->
             timestamp = Math.floor(
@@ -153,7 +163,7 @@ Promise.all [
                     flare
                     .post "/events/#{namespace}",
                       {
-                        # Avoid influxdb de-duplication
+                        # Avoid influxdb de-duplication by adding small value
                         timestamp: String timestamp + index
                         tags:
                           event: event

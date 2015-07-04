@@ -1,40 +1,13 @@
-_ = require 'lodash'
 Joi = require 'joi'
 log = require 'loglevel'
 router = require 'promise-router'
-UAParser = require 'ua-parser-js'
-Negotiator = require 'negotiator'
 Promise = require 'bluebird'
 
 config = require '../config'
 schemas = require '../schemas'
 Event = require '../models/event'
 Experiment = require '../models/experiment'
-
-getTags = (userTags, req, user, namespace) ->
-  parser = new UAParser req.headers['user-agent']
-  negotiator = new Negotiator req
-
-  Experiment.assign user.id
-  .then (namespaces) ->
-    _.defaults {
-      uaBrowserName: parser.getBrowser().name
-      uaBrowserVersionMajor: parser.getBrowser().major
-      uaOSName: parser.getOS().name
-      uaOSVersion: parser.getOS().version
-      uaDeviceModel: parser.getDevice().model
-      language: negotiator.language()
-      joinDay: user.joinDay
-    }, namespaces[namespace]
-  .then (tags) ->
-    _.defaults tags, userTags
-
-getFields = (userFields, req, user) ->
-  _.defaults {
-    userId: user.id
-    ip: req.headers['x-forwards-for'] or req.connection.remoteAddress
-  }, userFields
-
+EventService = require '../services/event'
 
 class EventCtrl
   create: (req) ->
@@ -57,8 +30,8 @@ class EventCtrl
       throw new router.Error status: 400, detail: valid.error.message
 
     Promise.all [
-      getTags userTags, req, req.user, namespace
-      getFields userFields, req, req.user
+      EventService.getTags namespace, req, req.user, userTags
+      EventService.getFields req, req.user, userFields
     ]
     .then ([tags, fields]) ->
       Event.create namespace, tags, fields, timestamp
