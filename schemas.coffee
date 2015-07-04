@@ -23,10 +23,11 @@ experiment =
   choices: Joi.array().items Joi.string()
   weights: Joi.array().optional().items Joi.number()
 
+# FIXME: stricter type checks
 event =
   namespace: Joi.string()
   fields:
-    value: Joi.number()
+    value: Joi.number() # FIXME: must be integer
   tags:
     event: Joi.string()
     refererHost: Joi.string().optional()

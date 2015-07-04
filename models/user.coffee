@@ -19,13 +19,10 @@ constTimeEqual = (a, b) ->
 
   return c is 0
 
-getTimeByHourInSeconds = ->
-  Math.floor(Date.now() / 1000 / 60 / 60) * 60 *  60
-
 defaultUser = (user) ->
   _.defaults user, {
     id: uuid.v4()
-    joinTimeS: String getTimeByHourInSeconds()
+    joinDay: String Math.floor(Date.now() / 1000 / 60 / 60 / 24)
   }
 
 ADMIN = defaultUser {

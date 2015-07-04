@@ -8,6 +8,8 @@ r = require '../services/rethinkdb'
 InfluxService = require '../services/influxdb'
 util = require '../test/end_to_end/util'
 
+MS_IN_DAY = 1000 * 60 * 60 * 24
+
 dropRethink = ->
   r.dbList()
   .contains config.RETHINK.DB
@@ -81,12 +83,15 @@ Promise.all [
         .expect 200
 
 .then ->
+  # for each app
   Promise.map namespaces, (namespace) ->
-    # 200 users
-    Promise.map _.range(300), ->
-      # 1 week, random activity
+    # 50 users
+    Promise.map _.range(50), ->
       activeDays = _.sample _.range(7)
       joinDay = _.sample _.range(7)
+      joinDayEpoch = String(
+        Math.floor (Date.now() - MS_IN_DAY * joinDay - 1) / 1000 / 60 / 60 / 24
+      )
       userAgent = _.sample [
         'Mozilla/5.0 (Linux; Android 4.4.2;
                       Nexus 5 Build/KOT49H) AppleWebKit/537.36
@@ -112,49 +117,53 @@ Promise.all [
       language = _.sample ['en-US', 'en', 'en-GB', 'fr']
       ip = '127.0.0.1'
 
-      Promise.each _.range(7), (day) ->
-        msInDay = 1000 * 60 * 60 * 24
-        timestamp = String(
-          Math.floor((Date.now() - msInDay * (7 - day)) / 1000)
-        )
-        refererHost = _.sample [
-          'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
-        ]
+      flare
+        .thru util.createUser({joinDay: joinDayEpoch})
+        .thru (flare) ->
+          # user generates 7 days of activity
+          Promise.each _.range(7), (day) ->
+            timestamp = Math.floor((Date.now() - MS_IN_DAY * (6 - day)) / 1000)
+            refererHost = _.sample [
+              'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
+            ]
 
-        events = ['view']
+            events = ['view']
 
-        if Math.random() > 0.2
-          events.push 'gameplay'
+            if Math.random() > 0.2
+              events.push 'egp'
 
-        if Math.random() > 0.5
-          events.push 'send'
+            if Math.random() > 0.1
+              events.push 'send'
 
-        if Math.random() > 0.8
-          events.push 'send'
+            if Math.random() > 0.3
+              events.push 'send'
 
-        if day >= joinDay and day <= joinDay + activeDays
-          flare
-            .thru util.createUser()
-            .thru (flare) ->
-              Promise.map events, (event) ->
-                flare
-                .post "/events/#{namespace}",
-                  {
-                    timestamp: timestamp
-                    tags:
-                      event: event
-                      refererHost: refererHost
-                    fields:
-                      value: 1
-                  }, {
-                    headers:
-                      'user-agent': userAgent
-                      'accept-language': language
-                      'x-forwards-for': ip
-                  }
-                .expect 204
-              .then ->
-                flare
+            if Math.random() > 0.5
+              events.push 'revenue'
+
+            revenue = Math.floor Math.random() * 100
+
+            if day >= joinDay and day <= joinDay + activeDays
+              flare
+                .thru (flare) ->
+                  Promise.map events, (event, index) ->
+                    flare
+                    .post "/events/#{namespace}",
+                      {
+                        # Avoid influxdb de-duplication
+                        timestamp: String timestamp + index
+                        tags:
+                          event: event
+                          refererHost: refererHost
+                        fields:
+                          value: if event is 'revenue' then revenue else 1
+                      }, {
+                        headers:
+                          'user-agent': userAgent
+                          'accept-language': language
+                          'x-forwards-for': ip
+                      }
+                    .expect 204
     , {concurrency: 100}
 .then ->
   console.log 'DONE!'

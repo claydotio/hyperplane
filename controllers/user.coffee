@@ -9,10 +9,15 @@ Experiment = require '../models/experiment'
 
 class UserCtrl
   loginOrCreate: (req) ->
+    joinDay = req.body.joinDay
+
+    if config.ENV isnt config.ENVS.DEV and joinDay
+      throw new router.Error status: 400, detail: 'joinDay not allowed'
+
     user = if req.user?
       Promise.resolve req.user
     else
-      User.create({})
+      User.create({joinDay})
 
     user.then User.embed ['accessToken']
     .then (user) ->

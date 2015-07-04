@@ -24,7 +24,7 @@ getTags = (userTags, req, user, namespace) ->
       uaOSVersion: parser.getOS().version
       uaDeviceModel: parser.getDevice().model
       language: negotiator.language()
-      joinTimeS: user.joinTimeS
+      joinDay: user.joinDay
     }, namespaces[namespace]
   .then (tags) ->
     _.defaults tags, userTags

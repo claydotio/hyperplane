@@ -17,11 +17,11 @@ loginAdmin = ->
       }
       .as 'admin'
 
-createUser = ->
+createUser = ({joinDay}) ->
   return (flare) ->
     flare
       .as 'nobody'
-      .post '/users'
+      .post '/users', {joinDay}
       .stash 'user'
       .actor 'user', {
         headers:
