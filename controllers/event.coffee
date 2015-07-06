@@ -6,6 +6,7 @@ Promise = require 'bluebird'
 config = require '../config'
 schemas = require '../schemas'
 Event = require '../models/event'
+User = require '../models/user'
 Experiment = require '../models/experiment'
 EventService = require '../services/event'
 
@@ -33,6 +34,21 @@ class EventCtrl
       EventService.getTags namespace, req, req.user, userTags
       EventService.getFields req, req.user, userFields
     ]
+    .then ([tags, fields]) ->
+      Event.create namespace, tags, fields, timestamp
+      .tap ->
+        log.info "event=event_create, namespace=#{namespace},
+                  tags=#{JSON.stringify(tags)},
+                  fields=#{JSON.stringify(fields)}"
+    .then ->
+      User.cycleSession(req.user)
+    .then (user) ->
+      Promise.all [
+        EventService.getTags namespace, req, user, {event: 'session'}
+        EventService.getFields req, user, {
+          value: user.lastSessionEventDelta
+        }
+      ]
     .then ([tags, fields]) ->
       Event.create namespace, tags, fields, timestamp
       .tap ->

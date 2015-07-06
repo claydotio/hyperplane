@@ -140,7 +140,10 @@ Promise.all [
               'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
             ]
 
-            events = ['view']
+            events = ['view', 'pageview']
+
+            if Math.random() > 0.7
+              events.push 'pageview'
 
             if Math.random() > 0.2
               events.push 'egp'

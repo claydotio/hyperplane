@@ -20,6 +20,7 @@ class EventService
         language: negotiator.language()
         joinDay: user.joinDay
         inviterJoinDay: user.inviterJoinDay or undefined
+        sessionEvents: user.sessionEvents
       }, namespaces[namespace]
     .then (tags) ->
       _.defaults tags, userTags
@@ -27,6 +28,7 @@ class EventService
   getFields: (req, user, userFields = {}) ->
     _.defaults {
       userId: user.id
+      sessionId: user.sessionId
       ip: req.headers['x-forwards-for'] or req.connection.remoteAddress
     }, userFields
 

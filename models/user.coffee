@@ -7,6 +7,7 @@ r = require '../services/rethinkdb'
 config = require '../config'
 
 USERS_TABLE = 'users'
+MS_IN_DAY = 1000 * 60 * 60 * 24
 
 constTimeEqual = (a, b) ->
   c = 0
@@ -24,6 +25,10 @@ defaultUser = (user) ->
     id: uuid.v4()
     joinDay: String Math.floor(Date.now() / 1000 / 60 / 60 / 24)
     inviterJoinDay: null
+    sessionId: uuid.v4()
+    lastSessionEventTime: Date.now()
+    lastSessionEventDelta: 0
+    sessionEvents: 0
   }
 
 ADMIN = defaultUser {
@@ -83,6 +88,39 @@ class UserModel
     .get id
     .run()
     .then defaultUser
+
+  updateById: (id, diff) ->
+    r.table USERS_TABLE
+    .get id
+    .update diff
+    .run()
+
+  cycleSession: (user) =>
+    {lastSessionEventTime} = user
+
+    # FIXME: const
+    currentTime = Date.now()
+    inactivity = currentTime - lastSessionEventTime
+    lastDay = Math.floor lastSessionEventTime / MS_IN_DAY
+    currentDay = Math.floor currentTime / MS_IN_DAY
+    # after 30 mins of inactivity or day-change
+    if inactivity > 1000 * 60 * 30 or lastDay isnt currentDay
+      update = {
+        sessionId: uuid.v4()
+        lastSessionEventTime: currentTime
+        lastSessionEventDelta: 0
+        sessionEvents: 0
+      }
+    else
+      update = {
+        lastSessionEventTime: currentTime
+        lastSessionEventDelta: inactivity
+        sessionEvents: user.sessionEvents + 1
+      }
+
+    @updateById user.id, update
+    .then ->
+      _.defaults update, user
 
   embed: _.curry (embed, user) ->
     embedded = _.merge {}, user
