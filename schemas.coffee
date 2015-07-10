@@ -20,18 +20,18 @@ user =
 
 experiment =
   id: id
-  namespace: Joi.string()
-  key: Joi.string()
+  namespace: Joi.string().token()
+  key: Joi.string().token()
   globalPercent: Joi.number()
-  choices: Joi.array().items Joi.string()
+  choices: Joi.array().items Joi.string().token()
   weights: Joi.array().optional().items Joi.number()
 
 event =
-  namespace: Joi.string()
+  namespace: Joi.string().token()
   fieldValue: Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
   tagEvent: Joi.string()
   keys: Joi.array().items \
-    Joi.string().min(1).max(100).alphanum() # Arbitrary min and max
+    Joi.string().min(1).max(100).token() # Arbitrary min and max
   strings: Joi.array().items \
     Joi.string().min(1).max(1000) # Arbitrary min and max
   numbers: Joi.array().items \

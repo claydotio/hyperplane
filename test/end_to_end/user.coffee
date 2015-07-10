@@ -72,6 +72,41 @@ describe 'User Routes', ->
             }
           .expect 401
 
+      it 'errors if contains restricted params in non-dev environment', ->
+        flare
+          .post '/users', {
+            namespace: 'valid'
+          }
+          .expect 200
+          .post '/users', {
+            namespace: 'valid'
+            joinDay: '123'
+          }
+          .expect 400
+          .post '/users', {
+            namespace: 'valid'
+            inviterJoinDay: '123'
+          }
+          .expect 400
+          .post '/users', {
+            namespace: 'valid'
+            timestamp: String Date.now()
+          }
+          .expect 400
+
+      it 'errors if invalid namespace', ->
+        flare
+          .post '/users', {
+            namespace: 'valid'
+          }
+          .expect 200
+          .post '/users', {
+            namespace: 123
+          }
+          .expect 400
+          .post '/users'
+          .expect 400
+
   describe 'GET /users/me/experiments/:namespace', ->
     it 'gets users experiments in namespace', ->
       flare
@@ -116,3 +151,20 @@ describe 'User Routes', ->
           namespace_1_exp_2:
             Joi.string().valid('purple', 'yellow', 'red', 'blue')
         }
+
+    describe '400', ->
+      it 'fails if invalid namespace', ->
+        flare
+          .thru util.loginAdmin()
+          .post '/experiments',
+            {
+              key: 'namespace_2_exp_1'
+              namespace: 'namespace_2'
+              globalPercent: 100
+              choices: ['red', 'blue']
+              weights: [1, 0]
+            }
+          .expect 200
+          .thru util.createUser({namespace: 'namespace_2'})
+          .get '/users/me/experiments/in-valid'
+          .expect 400

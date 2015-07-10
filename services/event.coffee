@@ -5,7 +5,7 @@ Negotiator = require 'negotiator'
 Experiment = require '../models/experiment'
 
 class EventService
-  getTags: (namespace, req, user, userTags = {}) ->
+  getTags: (namespace, req, user, userTags) ->
     parser = new UAParser req.headers['user-agent']
     negotiator = new Negotiator req
 
@@ -25,7 +25,7 @@ class EventService
     .then (tags) ->
       _.defaults tags, userTags
 
-  getFields: (req, user, userFields = {}) ->
+  getFields: (req, user, userFields) ->
     _.defaults {
       userId: user.id
       sessionId: user.sessionId

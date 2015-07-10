@@ -121,3 +121,21 @@ describe 'Experiment Routes', ->
         .expect 200, _.defaults {
           globalPercent: 5
         }, schemas.experiment
+
+    describe '400', ->
+      it 'fails if invalid data', ->
+        flare
+          .thru util.loginAdmin()
+          .post '/experiments',
+            {
+              key: 'abc'
+              namespace: 'ex_name_space'
+              globalPercent: 100
+              choices: ['red', 'blue']
+            }
+          .expect 200
+          .stash 'experiment'
+          .put '/experiments/:experiment.id', {
+            globalPercent: 'str'
+          }
+          .expect 400

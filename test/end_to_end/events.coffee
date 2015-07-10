@@ -59,6 +59,19 @@ describe 'Event Routes', ->
             }
           .expect 400
 
+      it 'fails to create if timestamp given in non dev environment', ->
+        flare
+          .thru util.createUser({namespace: 'doodledraw'})
+          .post '/events/doodledraw',
+            {
+              timestamp: String Date.now()
+              tags:
+                event: 'signup'
+              fields:
+                value: 1
+            }
+          .expect 400
+
   describe 'GET /events/?q=', ->
     it 'gets experiment results', ->
       flare
@@ -174,3 +187,10 @@ describe 'Event Routes', ->
               WHERE event='cancel_order' AND language='en-US'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
+
+    describe '400', ->
+      it 'fails if missing q', ->
+        flare
+          .thru util.loginAdmin()
+          .get '/events'
+          .expect 400
