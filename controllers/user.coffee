@@ -1,3 +1,4 @@
+_ = require 'lodash'
 Joi = require 'joi'
 router = require 'promise-router'
 Promise = require 'bluebird'
@@ -15,6 +16,8 @@ class UserCtrl
     inviterJoinDay = req.body.inviterJoinDay
     namespace = req.body.namespace
     timestamp = req.body.timestamp
+    userTags = _.defaults {event: 'join'}, req.body?.tags or {}
+    userFields = _.defaults {value: 1}, req.body?.fields or {}
 
     hasRestrictedParams = joinDay or inviterJoinDay or timestamp
 
@@ -27,9 +30,16 @@ class UserCtrl
       Promise.resolve req.user
     else
 
-      valid = Joi.validate {namespace},
-        namespace: schemas.event.namespace
-      , {presence: 'required'}
+      userValues = _.values(userTags).concat(_.values(userFields))
+      valid = Joi.validate {
+        namespace: namespace
+        fieldValue: userFields.value
+        tagEvent: userTags.event
+        keys: _.keys(userTags).concat _.keys(userFields)
+        strings: _.filter userValues, _.isString
+        numbers: _.filter userValues, _.isNumber
+      }, schemas.event,
+        {presence: 'required'}
 
       if valid.error
         throw new router.Error status: 400, detail: valid.error.message
@@ -37,8 +47,8 @@ class UserCtrl
       User.create({joinDay, inviterJoinDay})
       .tap (user) ->
         Promise.all [
-          EventService.getTags namespace, req, user, {event: 'join'}
-          EventService.getFields req, user, {value: 1}
+          EventService.getTags namespace, req, user, userTags
+          EventService.getFields req, user, userFields
         ]
         .then ([tags, fields]) ->
           Event.create namespace, tags, fields, timestamp

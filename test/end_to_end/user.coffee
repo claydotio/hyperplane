@@ -54,6 +54,26 @@ describe 'User Routes', ->
           accessToken: schemas.accessToken
         }, schemas.user
 
+    it 'creates a join event', ->
+      flare
+        .thru util.createUser({namespace: 'joinevent'})
+        .thru util.loginAdmin()
+        .get '/events', {
+          q: 'SELECT count(value) FROM joinevent'
+        }
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+
+    it 'creates a join event with custom tags', ->
+      flare
+        .thru util.createUser({namespace: 'joinevent2', tags: {tagA: 'abc'}})
+        .thru util.loginAdmin()
+        .get '/events', {
+          q: 'SELECT count(value) FROM joinevent2 WHERE tagA=\'abc\''
+        }
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+
     describe '400', ->
       it 'errors if invalid admin info', ->
         flare
