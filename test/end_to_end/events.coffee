@@ -11,7 +11,7 @@ describe 'Event Routes', ->
   describe 'POST /events/:namespace', ->
     it 'creates event', ->
       flare
-        .thru util.createUser()
+        .thru util.createUser({namespace: 'doodledraw'})
         .post '/events/doodledraw',
           {
             tags:
@@ -33,7 +33,7 @@ describe 'Event Routes', ->
     describe '400', ->
       it 'fails to create event if invalid value', ->
         flare
-          .thru util.createUser()
+          .thru util.createUser({namespace: 'doodledraw'})
           .post '/events/doodledraw',
             {
               tags:
@@ -41,15 +41,6 @@ describe 'Event Routes', ->
                 refererHost: 'google.com'
               fields:
                 value: 'str'
-            }
-          .expect 400
-          .post '/events/doodledraw',
-            {
-              tags:
-                event: 'signup'
-                refererHost: 1
-              fields:
-                value: 1
             }
           .expect 400
           .post '/events/doodledraw',
@@ -71,7 +62,7 @@ describe 'Event Routes', ->
   describe 'GET /events/?q=', ->
     it 'gets experiment results', ->
       flare
-        .thru util.createUser()
+        .thru util.createUser({namespace: 'gspace'})
         .post '/events/gspace',
           {
             tags:
@@ -108,7 +99,7 @@ describe 'Event Routes', ->
 
     it 'gets experiment results for auto added tags', ->
       flare
-        .thru util.createUser()
+        .thru util.createUser({namespace: 'exspace'})
         .post '/events/exspace',
           {
             tags:
@@ -137,7 +128,7 @@ describe 'Event Routes', ->
                             Mobile Safari/537.36'
           }
         .expect 204
-        .thru util.createUser()
+        .thru util.createUser({namespace: 'exspace'})
         .post '/events/exspace',
           {
             tags:
@@ -175,9 +166,9 @@ describe 'Event Routes', ->
           body.results[0].series[0].values[0][1].should.be 2
         .get '/events',
           q: "SELECT count(value) FROM exspace
-              WHERE uaBrowserName='Chrome'"
+              WHERE uaBrowserName='Chrome' AND event='view'"
         .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 2
+          body.results[0].series[0].values[0][1].should.be 1
         .get '/events',
           q: "SELECT count(value) FROM exspace
               WHERE event='cancel_order' AND language='en-US'"

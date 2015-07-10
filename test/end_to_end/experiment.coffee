@@ -68,7 +68,7 @@ describe 'Experiment Routes', ->
 
       it 'fails if not admin', ->
         flare
-          .thru util.createUser()
+          .thru util.createUser({namespace: 'ex_name_space'})
           .post '/experiments',
             {
               key: 'text_exp'

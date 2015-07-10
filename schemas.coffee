@@ -2,6 +2,9 @@ Joi = require 'joi'
 
 User = require './models/user'
 
+MIN_SAFE_INTEGER = -9007199254740991
+MAX_SAFE_INTEGER = 9007199254740991
+
 accessToken = Joi.string()
 
 id =  Joi.string().regex(
@@ -23,14 +26,16 @@ experiment =
   choices: Joi.array().items Joi.string()
   weights: Joi.array().optional().items Joi.number()
 
-# FIXME: stricter type checks
 event =
   namespace: Joi.string()
-  fields:
-    value: Joi.number() # FIXME: must be integer
-  tags:
-    event: Joi.string()
-    refererHost: Joi.string().optional()
+  fieldValue: Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
+  tagEvent: Joi.string()
+  keys: Joi.array().items \
+    Joi.string().min(1).max(100).alphanum() # Arbitrary min and max
+  strings: Joi.array().items \
+    Joi.string().min(1).max(1000) # Arbitrary min and max
+  numbers: Joi.array().items \
+    Joi.number().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
 
 module.exports = {
   id: id

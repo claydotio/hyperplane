@@ -41,7 +41,7 @@ describe 'User Routes', ->
 
     it 'returns new user with accessToken', ->
       flare
-        .post '/users'
+        .post '/users', {namespace: 'testspace'}
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.user
@@ -109,7 +109,7 @@ describe 'User Routes', ->
             choices: ['red', 'blue']
           }
         .expect 200
-        .thru util.createUser()
+        .thru util.createUser({namespace: 'namespace_1'})
         .get '/users/me/experiments/namespace_1'
         .expect 200, {
           namespace_1_exp_1: 'red'

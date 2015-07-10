@@ -8,6 +8,7 @@ config = require '../config'
 
 USERS_TABLE = 'users'
 MS_IN_DAY = 1000 * 60 * 60 * 24
+SESSION_CYCLE_TIME_MS = 1000 * 60 * 30
 
 constTimeEqual = (a, b) ->
   c = 0
@@ -98,13 +99,12 @@ class UserModel
   cycleSession: (user) =>
     {lastSessionEventTime} = user
 
-    # FIXME: const
     currentTime = Date.now()
     inactivity = currentTime - lastSessionEventTime
     lastDay = Math.floor lastSessionEventTime / MS_IN_DAY
     currentDay = Math.floor currentTime / MS_IN_DAY
-    # after 30 mins of inactivity or day-change
-    if inactivity > 1000 * 60 * 30 or lastDay isnt currentDay
+
+    if inactivity > SESSION_CYCLE_TIME_MS or lastDay isnt currentDay
       update = {
         sessionId: uuid.v4()
         lastSessionEventTime: currentTime

@@ -1,3 +1,4 @@
+_ = require 'lodash'
 Joi = require 'joi'
 log = require 'loglevel'
 router = require 'promise-router'
@@ -20,10 +21,14 @@ class EventCtrl
     if config.ENV isnt config.ENVS.DEV and timestamp
       throw new router.Error status: 400, detail: 'timestamp not allowed'
 
+    userValues = _.values(userTags).concat(_.values(userFields))
     valid = Joi.validate {
-      tags: userTags
-      fields: userFields
-      namespace
+      namespace: namespace
+      fieldValue: userFields.value
+      tagEvent: userTags.event
+      keys: _.keys(userTags).concat _.keys(userFields)
+      strings: _.filter userValues, _.isString
+      numbers: _.filter userValues, _.isNumber
     }, schemas.event,
       {presence: 'required'}
 
@@ -36,10 +41,6 @@ class EventCtrl
     ]
     .then ([tags, fields]) ->
       Event.create namespace, tags, fields, timestamp
-      .tap ->
-        log.info "event=event_create, namespace=#{namespace},
-                  tags=#{JSON.stringify(tags)},
-                  fields=#{JSON.stringify(fields)}"
     .then ->
       User.cycleSession(req.user)
     .then (user) ->
@@ -51,10 +52,6 @@ class EventCtrl
       ]
     .then ([tags, fields]) ->
       Event.create namespace, tags, fields, timestamp
-      .tap ->
-        log.info "event=event_create, namespace=#{namespace},
-                  tags=#{JSON.stringify(tags)},
-                  fields=#{JSON.stringify(fields)}"
     .then ->
       return null
 
