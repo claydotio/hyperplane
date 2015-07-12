@@ -43,7 +43,7 @@ describe 'User Routes', ->
 
     it 'returns new user with accessToken', ->
       flare
-        .post '/users', {namespace: 'testspace'}
+        .post '/users'
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.user
@@ -58,20 +58,20 @@ describe 'User Routes', ->
 
     it 'creates a join event', ->
       flare
-        .thru util.createUser({namespace: 'joinevent'})
+        .thru util.createUser()
         .thru util.loginAdmin()
         .get '/events', {
-          q: 'SELECT count(value) FROM joinevent'
+          q: 'SELECT count(userId) FROM join'
         }
         .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 1
+          body.results[0].series[0].values[0][1].should.be.least 1
 
     it 'creates a join event with custom tags', ->
       flare
-        .thru util.createUser({namespace: 'joinevent2', tags: {tagA: 'abc'}})
+        .thru util.createUser({tags: {tagA: 'abc'}})
         .thru util.loginAdmin()
         .get '/events', {
-          q: 'SELECT count(value) FROM joinevent2 WHERE tagA=\'abc\''
+          q: 'SELECT count(userId) FROM join WHERE tagA=\'abc\''
         }
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
@@ -79,15 +79,14 @@ describe 'User Routes', ->
     it 'tracks inviterJoinDay', ->
       today = Math.floor Date.now() / MS_IN_DAY
       flare
-        .thru util.createUser({namespace: 'inviterjoinday'})
+        .thru util.createUser()
         .as 'nobody'
         .post '/users',
-          namespace: 'inviterjoinday'
           inviterId: ':user.id'
         .thru util.loginAdmin()
         .get '/events', {
-          q: "SELECT count(value) FROM inviterjoinday
-              WHERE event=\'join\' AND inviterJoinDay='#{today}'"
+          q: "SELECT count(userId) FROM join
+              WHERE inviterJoinDay='#{today}'"
         }
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
@@ -113,54 +112,32 @@ describe 'User Routes', ->
       it 'errors if contains restricted params in non-dev environment', ->
         flare
           .post '/users', {
-            namespace: 'valid'
-          }
-          .expect 200
-          .post '/users', {
-            namespace: 'valid'
             joinDay: '123'
           }
           .expect 400
           .post '/users', {
-            namespace: 'valid'
             inviterJoinDay: '123'
           }
           .expect 400
           .post '/users', {
-            namespace: 'valid'
             timestamp: String Date.now()
           }
-          .expect 400
-
-      it 'errors if invalid namespace', ->
-        flare
-          .post '/users', {
-            namespace: 'valid'
-          }
-          .expect 200
-          .post '/users', {
-            namespace: 123
-          }
-          .expect 400
-          .post '/users'
           .expect 400
 
       it 'errors if invalid inviterId', ->
         flare
           .post '/users', {
-            namespace: 'valid'
             inviterId: true
           }
           .expect 400
 
-  describe 'GET /users/me/experiments/:namespace', ->
-    it 'gets users experiments in namespace', ->
+  describe 'GET /users/me/experiments', ->
+    it 'gets users experiments', ->
       flare
         .thru util.loginAdmin()
         .post '/experiments',
           {
-            key: 'namespace_1_exp_1'
-            namespace: 'namespace_1'
+            key: 'flappy_bird_exp_1'
             globalPercent: 100
             choices: ['red', 'blue']
             weights: [1, 0]
@@ -168,49 +145,22 @@ describe 'User Routes', ->
         .expect 200
         .post '/experiments',
           {
-            key: 'namespace_1_exp_2'
-            namespace: 'namespace_1'
+            key: 'flappy_bird_exp_2'
             globalPercent: 100
             choices: ['purple', 'yellow', 'red', 'blue']
           }
         .expect 200
         .post '/experiments',
           {
-            key: 'namespace_1_exp_3'
-            namespace: 'namespace_1'
+            key: 'flappy_bird_exp_3'
             globalPercent: 0
             choices: ['red', 'blue']
           }
         .expect 200
-        .post '/experiments',
-          {
-            key: 'namespace_null_exp_1'
-            namespace: 'namespace_null'
-            globalPercent: 100
-            choices: ['red', 'blue']
-          }
-        .expect 200
-        .thru util.createUser({namespace: 'namespace_1'})
-        .get '/users/me/experiments/namespace_1'
-        .expect 200, {
-          namespace_1_exp_1: 'red'
-          namespace_1_exp_2:
+        .thru util.createUser()
+        .get '/users/me/experiments'
+        .expect 200, Joi.object().unknown().keys {
+          flappy_bird_exp_1: 'red'
+          flappy_bird_exp_2:
             Joi.string().valid('purple', 'yellow', 'red', 'blue')
         }
-
-    describe '400', ->
-      it 'fails if invalid namespace', ->
-        flare
-          .thru util.loginAdmin()
-          .post '/experiments',
-            {
-              key: 'namespace_2_exp_1'
-              namespace: 'namespace_2'
-              globalPercent: 100
-              choices: ['red', 'blue']
-              weights: [1, 0]
-            }
-          .expect 200
-          .thru util.createUser({namespace: 'namespace_2'})
-          .get '/users/me/experiments/in-valid'
-          .expect 400

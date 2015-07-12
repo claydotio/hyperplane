@@ -8,49 +8,38 @@ config = require '../../config'
 util = require './util'
 
 describe 'Event Routes', ->
-  describe 'POST /events/:namespace', ->
+  describe 'POST /events', ->
     it 'creates event', ->
       flare
-        .thru util.createUser({namespace: 'doodledraw'})
-        .post '/events/doodledraw',
+        .thru util.createUser()
+        .post '/events/signup',
           {
             tags:
-              event: 'signup'
               refererHost: 'google.com'
             fields:
               value: 1
           }
         .expect 204
-        .post '/events/doodledraw',
-          {
-            tags:
-              event: 'signup'
-            fields:
-              value: 1
-          }
+        .post '/events/signup'
         .expect 204
 
     describe '400', ->
       it 'fails to create if timestamp given in non dev environment', ->
         flare
-          .thru util.createUser({namespace: 'doodledraw'})
-          .post '/events/doodledraw',
+          .thru util.createUser()
+          .post '/events/signup',
             {
               timestamp: String Date.now()
-              tags:
-                event: 'signup'
               fields:
                 value: 1
             }
           .expect 400
 
-      it 'fails to create event with floats', ->
+      it 'fails to create event with float fields', ->
         flare
-          .thru util.createUser({namespace: 'doodledraw'})
-          .post '/events/doodledraw',
+          .thru util.createUser()
+          .post '/events/signup',
             {
-              tags:
-                event: 'signup'
               fields:
                 value: 1.1
             }
@@ -58,56 +47,48 @@ describe 'Event Routes', ->
 
       it 'fails to create event with non-string tags', ->
         flare
-          .thru util.createUser({namespace: 'doodledraw'})
-          .post '/events/doodledraw',
+          .thru util.createUser()
+          .post '/events/signup',
             {
               tags:
-                event: 'signup'
                 bool: true
-              fields:
-                value: 1
             }
           .expect 400
 
   describe 'GET /events/?q=', ->
-    it 'gets experiment results', ->
+    it 'gets event results', ->
       flare
-        .thru util.createUser({namespace: 'gspace'})
-        .post '/events/gspace',
+        .thru util.createUser()
+        .post '/events/share',
           {
             tags:
-              event: 'signup'
               refererHost: 'google.com'
           }
         .expect 204
-        .post '/events/gspace',
+        .post '/events/share',
           {
             tags:
-              event: 'signup'
               refererHost: 'clay.io'
           }
         .expect 204
-        .post '/events/gspace',
+        .post '/events/cancel',
           {
             tags:
-              event: 'cancel'
               refererHost: 'google.com'
           }
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
-          q: "SELECT count(userId) FROM gspace
+          q: "SELECT count(userId) FROM share
               WHERE refererHost='google.com'"
         .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 2
+          body.results[0].series[0].values[0][1].should.be 1
 
     it 'gets experiment results for auto added tags', ->
       flare
-        .thru util.createUser({namespace: 'exspace'})
-        .post '/events/exspace',
+        .thru util.createUser()
+        .post '/events/view',
           {
-            tags:
-              event: 'view'
             fields:
               value: 1
           }, {
@@ -118,10 +99,8 @@ describe 'Event Routes', ->
                             Mobile Safari/537.36'
           }
         .expect 204
-        .post '/events/exspace',
+        .post '/events/cancel_order',
           {
-            tags:
-              event: 'cancel_order'
             fields:
               value: 1
           }, {
@@ -132,11 +111,9 @@ describe 'Event Routes', ->
                             Mobile Safari/537.36'
           }
         .expect 204
-        .thru util.createUser({namespace: 'exspace'})
-        .post '/events/exspace',
+        .thru util.createUser()
+        .post '/events/view',
           {
-            tags:
-              event: 'view'
             fields:
               value: 1
           }, {
@@ -147,10 +124,8 @@ describe 'Event Routes', ->
                             Mobile/10A5376e Safari/8536.25'
           }
         .expect 204
-        .post '/events/exspace',
+        .post '/events/cancel_order',
           {
-            tags:
-              event: 'cancel_order'
             fields:
               value: 1
           }, {
@@ -164,18 +139,17 @@ describe 'Event Routes', ->
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
-          q: "SELECT count(value) FROM exspace
-              WHERE event='view'"
+          q: 'SELECT count(value) FROM view'
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
         .get '/events',
-          q: "SELECT count(value) FROM exspace
-              WHERE uaBrowserName='Chrome' AND event='view'"
+          q: "SELECT count(value) FROM view
+              WHERE uaBrowserName='Chrome'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
         .get '/events',
-          q: "SELECT count(value) FROM exspace
-              WHERE event='cancel_order' AND language='en-US'"
+          q: "SELECT count(value) FROM \"cancel_order\"
+              WHERE language='en-US'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
@@ -188,60 +162,30 @@ describe 'Event Routes', ->
               resolve val
             , ms
       flare
-        .thru util.createUser({namespace: 'exsession'})
-        .post '/events/exsession',
-          {
-            tags:
-              event: 'click'
-            fields:
-              value: 1
-          }
+        .thru util.createUser()
+        .post '/events/click'
         .expect 204
         .thru delay(1000)
-        .post '/events/exsession',
-          {
-            tags:
-              event: 'click'
-            fields:
-              value: 1
-          }
+        .post '/events/click'
         .expect 204
-        .thru util.createUser({namespace: 'exsession'})
-        .post '/events/exsession',
-          {
-            tags:
-              event: 'click'
-            fields:
-              value: 1
-          }
+        .thru util.createUser()
+        .post '/events/click'
         .expect 204
         .thru delay(1000)
-        .post '/events/exsession',
-          {
-            tags:
-              event: 'click'
-            fields:
-              value: 1
-          }
+        .post '/events/click'
         .expect 204
         .thru delay(1000)
-        .post '/events/exsession',
-          {
-            tags:
-              event: 'click'
-            fields:
-              value: 1
-          }
+        .post '/events/click'
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
-          q: "SELECT count(distinct(sessionId)) FROM exsession
-              WHERE event='click' AND sessionEvents='2'"
+          q: "SELECT count(distinct(sessionId)) FROM click
+              WHERE sessionEvents='2'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
         .get '/events',
-          q: "SELECT count(distinct(sessionId)) FROM exsession
-              WHERE event='click' AND sessionEvents='1'"
+          q: "SELECT count(distinct(sessionId)) FROM click
+              WHERE sessionEvents='1'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
 

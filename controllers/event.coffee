@@ -13,18 +13,17 @@ EventService = require '../services/event'
 
 class EventCtrl
   create: (req) ->
+    event = req.params.event
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
     timestamp = req.body?.timestamp or ''
-    namespace = req.params.namespace
 
     if config.ENV isnt config.ENVS.DEV and timestamp
       throw new router.Error status: 400, detail: 'timestamp not allowed'
 
     userTagValues = _.values(userTags)
     valid = Joi.validate {
-      namespace: namespace
-      tagEvent: userTags.event
+      event: event
       keys: _.keys(userTags).concat _.keys(userFields)
       strings: userTagValues.concat _.filter(_.values(userFields), _.isString)
       numbers: _.filter _.values(userFields), _.isNumber
@@ -35,22 +34,22 @@ class EventCtrl
       throw new router.Error status: 400, detail: valid.error.message
 
     Promise.all [
-      EventService.getTags namespace, req, req.user, userTags
+      EventService.getTags req, req.user, userTags
       EventService.getFields req, req.user, userFields
     ]
     .then ([tags, fields]) ->
-      Event.create namespace, tags, fields, timestamp
+      Event.create event, tags, fields, timestamp
     .then ->
       User.cycleSession(req.user)
     .then (user) ->
       Promise.all [
-        EventService.getTags namespace, req, user, {event: 'session'}
+        EventService.getTags req, user, {}
         EventService.getFields req, user, {
           value: user.lastSessionEventDelta
         }
       ]
     .then ([tags, fields]) ->
-      Event.create namespace, tags, fields, timestamp
+      Event.create 'session', tags, fields, timestamp
     .then ->
       return null
 

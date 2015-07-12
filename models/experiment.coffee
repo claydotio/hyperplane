@@ -12,7 +12,6 @@ defaultExperiment = (experiment) ->
   _.defaults experiment, {
     id: uuid.v4()
     key: null
-    namespace: null
     globalPercent: 100
     choices: []
   }
@@ -84,8 +83,7 @@ class Experiment
         assigned = assignExperiment experiment, userId
 
         if assigned?
-          result[experiment.namespace] ?= {}
-          result[experiment.namespace][experiment.key] = assigned
+          result[experiment.key] = assigned
 
         return result
       , {}

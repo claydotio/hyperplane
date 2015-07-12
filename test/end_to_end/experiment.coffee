@@ -15,13 +15,11 @@ describe 'Experiment Routes', ->
         .post '/experiments',
           {
             key: 'text_exp'
-            namespace: 'ex_name_space'
             globalPercent: 100
             choices: ['red', 'blue']
           }
         .expect 200, _.defaults {
           key: 'text_exp'
-          namespace: 'ex_name_space'
           globalPercent: 100
           choices: schemas.experiment.choices.length(2)
         }, schemas.experiment
@@ -32,14 +30,12 @@ describe 'Experiment Routes', ->
         .post '/experiments',
           {
             key: 'text_exp'
-            namespace: 'ex_name_space'
             globalPercent: 100
             choices: ['red', 'blue']
             weights: [0.3, 0.7]
           }
         .expect 200, _.defaults {
           key: 'text_exp'
-          namespace: 'ex_name_space'
           globalPercent: 100
           choices: schemas.experiment.choices.length(2)
           weights: schemas.experiment.weights.length(2)
@@ -60,7 +56,6 @@ describe 'Experiment Routes', ->
           .post '/experiments',
             {
               key: 'text_exp'
-              namespace: 'ex_name_space'
               globalPercent: 100
               choices: ['red', 'blue']
             }
@@ -68,11 +63,10 @@ describe 'Experiment Routes', ->
 
       it 'fails if not admin', ->
         flare
-          .thru util.createUser({namespace: 'ex_name_space'})
+          .thru util.createUser()
           .post '/experiments',
             {
               key: 'text_exp'
-              namespace: 'ex_name_space'
               globalPercent: 100
               choices: ['red', 'blue']
             }
@@ -85,7 +79,6 @@ describe 'Experiment Routes', ->
         .post '/experiments',
           {
             key: 'abc'
-            namespace: 'ex_name_space'
             globalPercent: 100
             choices: ['red', 'blue']
           }
@@ -93,7 +86,6 @@ describe 'Experiment Routes', ->
         .post '/experiments',
           {
             key: 'xyz'
-            namespace: 'ex_name_space'
             globalPercent: 100
             choices: ['red', 'blue']
           }
@@ -108,7 +100,6 @@ describe 'Experiment Routes', ->
         .post '/experiments',
           {
             key: 'abc'
-            namespace: 'ex_name_space'
             globalPercent: 100
             choices: ['red', 'blue']
           }
@@ -129,7 +120,6 @@ describe 'Experiment Routes', ->
           .post '/experiments',
             {
               key: 'abc'
-              namespace: 'ex_name_space'
               globalPercent: 100
               choices: ['red', 'blue']
             }

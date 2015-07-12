@@ -20,16 +20,14 @@ user =
 
 experiment =
   id: id
-  namespace: Joi.string().token()
   key: Joi.string().token()
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string().token()
   weights: Joi.array().optional().items Joi.number()
 
 event =
-  namespace: Joi.string().token()
   inviterId: id.optional()
-  tagEvent: Joi.string()
+  event: Joi.string().min(1).max(100).token() # Arbitrary min and max
   keys: Joi.array().items \
     Joi.string().min(1).max(100).token() # Arbitrary min and max
   strings: Joi.array().items \

@@ -34,10 +34,10 @@ routePublic 'post', '/users',
 # Authed Routes #
 #################
 
-route 'post', '/events/:namespace',
+route 'post', '/events/:event',
   EventCtrl.create
 
-route 'get', '/users/me/experiments/:namespace',
+route 'get', '/users/me/experiments',
   UserCtrl.getExperiments
 
 ###################

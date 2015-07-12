@@ -10,12 +10,13 @@ Experiment = require '../models/experiment'
 Event = require '../models/event'
 EventService = require '../services/event'
 
+JOIN_EVENT_KEY = 'join'
+
 class UserCtrl
   loginOrCreate: (req) ->
-    namespace = req.body.namespace
     inviterId = req.body.inviterId
-    userTags = _.defaults {event: 'join'}, req.body?.tags or {}
-    userFields = _.defaults {value: 1}, req.body?.fields or {}
+    userTags = req.body?.tags or {}
+    userFields = req.body?.fields or {}
 
     # fake data overrides
     joinDay = req.body.joinDay
@@ -34,9 +35,8 @@ class UserCtrl
 
       userTagValues = _.values(userTags)
       valid = Joi.validate {
-        namespace: namespace
         inviterId: inviterId
-        tagEvent: userTags.event
+        event: JOIN_EVENT_KEY
         keys: _.keys(userTags).concat _.keys(userFields)
         strings: userTagValues.concat _.filter(_.values(userFields), _.isString)
         numbers: _.filter _.values(userFields), _.isNumber
@@ -55,29 +55,17 @@ class UserCtrl
         User.create({joinDay, inviterJoinDay})
       .tap (user) ->
         Promise.all [
-          EventService.getTags namespace, req, user, userTags
+          EventService.getTags req, user, userTags
           EventService.getFields req, user, userFields
         ]
         .then ([tags, fields]) ->
-          Event.create namespace, tags, fields, timestamp
+          Event.create JOIN_EVENT_KEY, tags, fields, timestamp
 
     user.then User.embed ['accessToken']
     .then (user) ->
       User.sanitize(user.id, user)
 
   getExperiments: (req) ->
-    namespace = req.params.namespace
-
-    valid = Joi.validate {namespace},
-      namespace: schemas.experiment.namespace
-    , {presence: 'required'}
-
-    if valid.error
-      throw new router.Error status: 400, detail: valid.error.message
-
     Experiment.assign req.user.id
-    .then (namespaces) ->
-      return namespaces[namespace]
-
 
 module.exports = new UserCtrl()

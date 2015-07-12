@@ -5,12 +5,12 @@ Negotiator = require 'negotiator'
 Experiment = require '../models/experiment'
 
 class EventService
-  getTags: (namespace, req, user, userTags) ->
+  getTags: (req, user, userTags) ->
     parser = new UAParser req.headers['user-agent']
     negotiator = new Negotiator req
 
     Experiment.assign user.id
-    .then (namespaces) ->
+    .then (experimentGroups) ->
       _.defaults {
         uaBrowserName: parser.getBrowser().name
         uaBrowserVersionMajor: parser.getBrowser().major
@@ -21,7 +21,7 @@ class EventService
         joinDay: user.joinDay
         inviterJoinDay: user.inviterJoinDay or undefined
         sessionEvents: String user.sessionEvents
-      }, namespaces[namespace]
+      }, experimentGroups
     .then (tags) ->
       _.defaults tags, userTags
 
