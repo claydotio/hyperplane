@@ -24,7 +24,6 @@ class EventCtrl
     userValues = _.values(userTags).concat(_.values(userFields))
     valid = Joi.validate {
       namespace: namespace
-      fieldValue: userFields.value
       tagEvent: userTags.event
       keys: _.keys(userTags).concat _.keys(userFields)
       strings: _.filter userValues, _.isString

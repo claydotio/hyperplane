@@ -31,34 +31,6 @@ describe 'Event Routes', ->
         .expect 204
 
     describe '400', ->
-      it 'fails to create event if invalid value', ->
-        flare
-          .thru util.createUser({namespace: 'doodledraw'})
-          .post '/events/doodledraw',
-            {
-              tags:
-                event: 'signup'
-                refererHost: 'google.com'
-              fields:
-                value: 'str'
-            }
-          .expect 400
-          .post '/events/doodledraw',
-            {
-              tags:
-                event: 'signup'
-                refererHost: 'google.com'
-            }
-          .expect 400
-          .post '/events/doodledraw',
-            {
-              tags:
-                refererHost: 'google.com'
-              fields:
-                value: 1
-            }
-          .expect 400
-
       it 'fails to create if timestamp given in non dev environment', ->
         flare
           .thru util.createUser({namespace: 'doodledraw'})
@@ -81,8 +53,6 @@ describe 'Event Routes', ->
             tags:
               event: 'signup'
               refererHost: 'google.com'
-            fields:
-              value: 1
           }
         .expect 204
         .post '/events/gspace',
@@ -90,8 +60,6 @@ describe 'Event Routes', ->
             tags:
               event: 'signup'
               refererHost: 'clay.io'
-            fields:
-              value: 1
           }
         .expect 204
         .post '/events/gspace',
@@ -99,13 +67,11 @@ describe 'Event Routes', ->
             tags:
               event: 'cancel'
               refererHost: 'google.com'
-            fields:
-              value: 1
           }
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
-          q: "SELECT count(value) FROM gspace
+          q: "SELECT count(userId) FROM gspace
               WHERE refererHost='google.com'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2

@@ -29,7 +29,6 @@ experiment =
 event =
   namespace: Joi.string().token()
   inviterId: id.optional()
-  fieldValue: Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
   tagEvent: Joi.string()
   keys: Joi.array().items \
     Joi.string().min(1).max(100).token() # Arbitrary min and max

@@ -36,7 +36,6 @@ class UserCtrl
       valid = Joi.validate {
         namespace: namespace
         inviterId: inviterId
-        fieldValue: userFields.value
         tagEvent: userTags.event
         keys: _.keys(userTags).concat _.keys(userFields)
         strings: _.filter userValues, _.isString
