@@ -7,6 +7,8 @@ schemas = require '../../schemas'
 config = require '../../config'
 util = require './util'
 
+MS_IN_DAY = 1000 * 60 * 60 * 24
+
 describe 'User Routes', ->
   describe 'POST /users', ->
     it 'logs in admin with username and password', ->
@@ -74,6 +76,22 @@ describe 'User Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
+    it 'tracks inviterJoinDay', ->
+      today = Math.floor Date.now() / MS_IN_DAY
+      flare
+        .thru util.createUser({namespace: 'inviterjoinday'})
+        .as 'nobody'
+        .post '/users',
+          namespace: 'inviterjoinday'
+          inviterId: ':user.id'
+        .thru util.loginAdmin()
+        .get '/events', {
+          q: "SELECT count(value) FROM inviterjoinday
+              WHERE event=\'join\' AND inviterJoinDay='#{today}'"
+        }
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+
     describe '400', ->
       it 'errors if invalid admin info', ->
         flare
@@ -125,6 +143,14 @@ describe 'User Routes', ->
           }
           .expect 400
           .post '/users'
+          .expect 400
+
+      it 'errors if invalid inviterId', ->
+        flare
+          .post '/users', {
+            namespace: 'valid'
+            inviterId: true
+          }
           .expect 400
 
   describe 'GET /users/me/experiments/:namespace', ->

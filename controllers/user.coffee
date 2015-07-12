@@ -12,13 +12,15 @@ EventService = require '../services/event'
 
 class UserCtrl
   loginOrCreate: (req) ->
-    joinDay = req.body.joinDay
-    inviterJoinDay = req.body.inviterJoinDay
     namespace = req.body.namespace
-    timestamp = req.body.timestamp
+    inviterId = req.body.inviterId
     userTags = _.defaults {event: 'join'}, req.body?.tags or {}
     userFields = _.defaults {value: 1}, req.body?.fields or {}
 
+    # fake data overrides
+    joinDay = req.body.joinDay
+    inviterJoinDay = req.body.inviterJoinDay
+    timestamp = req.body.timestamp
     hasRestrictedParams = joinDay or inviterJoinDay or timestamp
 
     if config.ENV isnt config.ENVS.DEV and hasRestrictedParams
@@ -33,6 +35,7 @@ class UserCtrl
       userValues = _.values(userTags).concat(_.values(userFields))
       valid = Joi.validate {
         namespace: namespace
+        inviterId: inviterId
         fieldValue: userFields.value
         tagEvent: userTags.event
         keys: _.keys(userTags).concat _.keys(userFields)
@@ -44,7 +47,13 @@ class UserCtrl
       if valid.error
         throw new router.Error status: 400, detail: valid.error.message
 
-      User.create({joinDay, inviterJoinDay})
+      (if inviterId
+        User.getById inviterId
+      else
+        Promise.resolve null)
+      .then (inviter) ->
+        inviterJoinDay ?= inviter?.joinDay
+        User.create({joinDay, inviterJoinDay})
       .tap (user) ->
         Promise.all [
           EventService.getTags namespace, req, user, userTags
