@@ -20,7 +20,7 @@ class EventService
         language: negotiator.language()
         joinDay: user.joinDay
         inviterJoinDay: user.inviterJoinDay or undefined
-        sessionEvents: user.sessionEvents
+        sessionEvents: String user.sessionEvents
       }, namespaces[namespace]
     .then (tags) ->
       _.defaults tags, userTags

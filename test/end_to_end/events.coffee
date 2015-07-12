@@ -188,6 +188,72 @@ describe 'Event Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
+    it 'tracks session events', ->
+      # delay required to avoid de-duplication
+      delay = (ms) ->
+        (val) ->
+          new Promise (resolve) ->
+            setTimeout ->
+              resolve val
+            , ms
+      flare
+        .thru util.createUser({namespace: 'exsession'})
+        .post '/events/exsession',
+          {
+            tags:
+              event: 'click'
+            fields:
+              value: 1
+          }
+        .expect 204
+        .thru delay(1000)
+        .post '/events/exsession',
+          {
+            tags:
+              event: 'click'
+            fields:
+              value: 1
+          }
+        .expect 204
+        .thru util.createUser({namespace: 'exsession'})
+        .post '/events/exsession',
+          {
+            tags:
+              event: 'click'
+            fields:
+              value: 1
+          }
+        .expect 204
+        .thru delay(1000)
+        .post '/events/exsession',
+          {
+            tags:
+              event: 'click'
+            fields:
+              value: 1
+          }
+        .expect 204
+        .thru delay(1000)
+        .post '/events/exsession',
+          {
+            tags:
+              event: 'click'
+            fields:
+              value: 1
+          }
+        .expect 204
+        .thru util.loginAdmin()
+        .get '/events',
+          q: "SELECT count(distinct(sessionId)) FROM exsession
+              WHERE event='click' AND sessionEvents='2'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+        .get '/events',
+          q: "SELECT count(distinct(sessionId)) FROM exsession
+              WHERE event='click' AND sessionEvents='1'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 2
+
     describe '400', ->
       it 'fails if missing q', ->
         flare
