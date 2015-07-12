@@ -44,6 +44,31 @@ describe 'Event Routes', ->
             }
           .expect 400
 
+      it 'fails to create event with floats', ->
+        flare
+          .thru util.createUser({namespace: 'doodledraw'})
+          .post '/events/doodledraw',
+            {
+              tags:
+                event: 'signup'
+              fields:
+                value: 1.1
+            }
+          .expect 400
+
+      it 'fails to create event with non-string tags', ->
+        flare
+          .thru util.createUser({namespace: 'doodledraw'})
+          .post '/events/doodledraw',
+            {
+              tags:
+                event: 'signup'
+                bool: true
+              fields:
+                value: 1
+            }
+          .expect 400
+
   describe 'GET /events/?q=', ->
     it 'gets experiment results', ->
       flare

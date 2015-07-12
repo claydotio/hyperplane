@@ -34,8 +34,10 @@ event =
     Joi.string().min(1).max(100).token() # Arbitrary min and max
   strings: Joi.array().items \
     Joi.string().min(1).max(1000) # Arbitrary min and max
+  # Floats are dissalowed currently because influx types are strict
+  # and require decimals (e.g. 1.0 -> '1' would error)
   numbers: Joi.array().items \
-    Joi.number().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
+    Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
 
 module.exports = {
   id: id

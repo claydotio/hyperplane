@@ -21,13 +21,13 @@ class EventCtrl
     if config.ENV isnt config.ENVS.DEV and timestamp
       throw new router.Error status: 400, detail: 'timestamp not allowed'
 
-    userValues = _.values(userTags).concat(_.values(userFields))
+    userTagValues = _.values(userTags)
     valid = Joi.validate {
       namespace: namespace
       tagEvent: userTags.event
       keys: _.keys(userTags).concat _.keys(userFields)
-      strings: _.filter userValues, _.isString
-      numbers: _.filter userValues, _.isNumber
+      strings: userTagValues.concat _.filter(_.values(userFields), _.isString)
+      numbers: _.filter _.values(userFields), _.isNumber
     }, schemas.event,
       {presence: 'required'}
 
