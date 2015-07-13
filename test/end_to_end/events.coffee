@@ -175,7 +175,7 @@ describe 'Event Routes', ->
         .post '/events/click'
         .expect 204
         .thru delay(1000)
-        .post '/events/click'
+        .post '/events/click', {tags: {tagA: 'tagged'}}
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
@@ -188,6 +188,11 @@ describe 'Event Routes', ->
               WHERE sessionEvents='1'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
+        .get '/events',
+          q: "SELECT count(distinct(sessionId)) FROM session
+              WHERE tagA='tagged'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
 
     describe '400', ->
       it 'fails if missing q', ->
