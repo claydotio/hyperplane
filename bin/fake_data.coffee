@@ -27,7 +27,7 @@ dropInflux = ->
     if hasDatabase
       InfluxService.dropDatabase(config.INFLUX.DB)
 
-namespaces = ['fruit_ninja', 'flappy_bird']
+games = ['fruit_ninja', 'flappy_bird']
 
 Promise.all [
   dropRethink()
@@ -39,52 +39,46 @@ Promise.all [
     server.influxSetup()
   ]
 .then ->
-  Promise.map namespaces, (namespace) ->
-    adminFlare = flare
-      .thru util.loginAdmin()
+  adminFlare = flare
+    .thru util.loginAdmin()
 
-    experiments = [
-      {
-        key: 'login_button'
-        namespace: namespace
-        globalPercent: 100
-        choices: ['control', 'blue']
-      }
-      {
-        key: 'invite_landing'
-        namespace: namespace
-        globalPercent: 100
-        choices: ['control', 'purple', 'yellow']
-      }
-      {
-        key: 'feedback'
-        namespace: namespace
-        globalPercent: 10
-        choices: ['control', 'visible']
-      }
-      {
-        key: 'share_icon'
-        namespace: namespace
-        globalPercent: 100
-        choices: ['control', 'big|red', 'big|blue', 'small|red', 'small|blue']
-      }
-      {
-        key: 'animation'
-        namespace: namespace
-        globalPercent: 100
-        choices: ['control', 'animated']
-        weights: [0.2, 0.8]
-      }
-    ]
+  experiments = [
+    {
+      key: 'login_button'
+      globalPercent: 100
+      choices: ['control', 'blue']
+    }
+    {
+      key: 'invite_landing'
+      globalPercent: 100
+      choices: ['control', 'purple', 'yellow']
+    }
+    {
+      key: 'feedback'
+      globalPercent: 10
+      choices: ['control', 'visible']
+    }
+    {
+      key: 'share_icon'
+      globalPercent: 100
+      choices: ['control', 'big_red', 'big_blue', 'small_red', 'small_blue']
+    }
+    {
+      key: 'animation'
+      globalPercent: 100
+      choices: ['control', 'animated']
+      weights: [0.2, 0.8]
+    }
+  ]
 
-    Promise.each experiments, (experiment) ->
-      adminFlare
-        .post '/experiments', experiment
-        .expect 200
+  Promise.each experiments, (experiment) ->
+    adminFlare
+      .post '/experiments', experiment
+      .expect 200
 
 .then ->
   # for each app
-  Promise.map namespaces, (namespace) ->
+  Promise.map games, (game) ->
     # 50 users
     Promise.map _.range(50), (index) ->
       daysToSimulate = 8
@@ -127,7 +121,6 @@ Promise.all [
         .thru util.createUser({
           joinDay: joinDayEpoch
           inviterJoinDay
-          namespace
           # Avoid influxdb de-duplication by adding small value
           timestamp: String Math.floor(joinDate / 1000 + index)
         })
@@ -164,12 +157,12 @@ Promise.all [
                 .thru (flare) ->
                   Promise.map events, (event, index) ->
                     flare
-                    .post "/events/#{namespace}",
+                    .post "/events/#{event}",
                       {
                         # Avoid influxdb de-duplication by adding small value
                         timestamp: String timestamp + index
                         tags:
-                          event: event
+                          game: game
                           refererHost: refererHost
                         fields:
                           value: if event is 'revenue' then revenue else 1

@@ -2,6 +2,7 @@ _ = require 'lodash'
 Promise = require 'bluebird'
 uuid = require 'node-uuid'
 seedrandom = require 'seedrandom'
+log = require 'loglevel'
 
 r = require '../services/rethinkdb'
 config = require '../config'
@@ -58,6 +59,7 @@ class Experiment
     .insert experiment
     .run()
     .then ->
+      log.info "event=experiment_create, id=#{experiment.id}"
       experiment
 
   getById: (id) ->

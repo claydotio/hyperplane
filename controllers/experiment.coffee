@@ -1,6 +1,5 @@
 _ = require 'lodash'
 Joi = require 'joi'
-log = require 'loglevel'
 router = require 'promise-router'
 
 schemas = require '../schemas'
@@ -19,10 +18,6 @@ class ExperimentCtrl
       throw new router.Error status: 400, detail: valid.error.message
 
     Experiment.create experiment
-    .then (experiment) ->
-      Experiment.getById experiment.id
-    .tap (experiment) ->
-      log.info "event=experiment_create, id=#{experiment.id}"
 
   getAll: ->
     Experiment.getAll()
