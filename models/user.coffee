@@ -101,10 +101,8 @@ class UserModel
 
     currentTime = Date.now()
     inactivity = currentTime - lastSessionEventTime
-    lastDay = Math.floor lastSessionEventTime / MS_IN_DAY
-    currentDay = Math.floor currentTime / MS_IN_DAY
 
-    if inactivity > SESSION_CYCLE_TIME_MS or lastDay isnt currentDay
+    if inactivity > SESSION_CYCLE_TIME_MS
       update = {
         sessionId: uuid.v4()
         lastSessionEventTime: currentTime
