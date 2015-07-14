@@ -164,3 +164,20 @@ describe 'User Routes', ->
           flappy_bird_exp_2:
             Joi.string().valid('purple', 'yellow', 'red', 'blue')
         }
+
+    it 'allows experiment key overrides', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'override_exp_1'
+            globalPercent: 100
+            choices: ['red', 'blue']
+            weights: [0.5, 0.5]
+          }
+        .expect 200
+        .thru util.createUser()
+        .get '/users/me/experiments', {key: '2'}
+        .expect 200, Joi.object().unknown().keys {
+          override_exp_1: 'blue'
+        }

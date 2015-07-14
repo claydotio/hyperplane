@@ -66,6 +66,15 @@ class UserCtrl
       User.sanitize(user.id, user)
 
   getExperiments: (req) ->
-    Experiment.assign req.user.id
+    key = req.query.key
+
+    valid = Joi.validate {key},
+      key: Joi.string().optional()
+    , {presence: 'required'}
+
+    if valid.error
+      throw new router.Error status: 400, detail: valid.error.message
+
+    Experiment.assign key or req.user.id
 
 module.exports = new UserCtrl()
