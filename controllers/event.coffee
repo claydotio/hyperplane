@@ -43,16 +43,17 @@ class EventCtrl
     .then ([tags, fields]) ->
       Event.create event, tags, fields, timestamp
     .then ->
-      User.cycleSession(req.user, isInteractive)
-      .then (user) ->
-        Promise.all [
-          EventService.getTags req, user, userTags
-          EventService.getFields req, user, _.defaults {
-            value: user.lastSessionEventDelta
-          }, userFields
-        ]
-      .then ([tags, fields]) ->
-        Event.create 'session', tags, fields, timestamp
+      if isInteractive
+        User.cycleSession(req.user)
+        .then (user) ->
+          Promise.all [
+            EventService.getTags req, user, userTags
+            EventService.getFields req, user, _.defaults {
+              value: user.lastSessionEventDelta
+            }, userFields
+          ]
+        .then ([tags, fields]) ->
+          Event.create 'session', tags, fields, timestamp
     .then ->
       return null
 

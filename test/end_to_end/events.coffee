@@ -184,25 +184,20 @@ describe 'Event Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
-    it 'doesn\'t track session event counts when not labeled as interactive', ->
+    it 'doesn\'t track session events when not labeled as interactive', ->
       flare
         .thru util.createUser()
-        .post '/events/isinteractive'
+        .post '/events/isinteractive', tags: {xx: 'x'}
         .expect 204
         .thru util.createUser()
-        .post '/events/isinteractive', {isInteractive: false}
+        .post '/events/isinteractive', {isInteractive: false, tags: {xx: 'x'}}
         .expect 204
         .thru util.loginAdmin()
         .get '/events',
-          q: "SELECT count(userId) FROM isinteractive
-              WHERE sessionEvents='0'"
+          q: "SELECT count(distinct(sessionId)) FROM session
+              WHERE xx='x'"
         .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 2
-        .get '/events',
-          q: "SELECT count(userId) FROM isinteractive
-              WHERE sessionEvents='1'"
-        .expect 200, ({body}) ->
-          should.not.exist body.results[0].series
+          body.results[0].series[0].values[0][1].should.be 1
 
     describe '400', ->
       it 'fails if missing q', ->

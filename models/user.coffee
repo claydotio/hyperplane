@@ -96,7 +96,7 @@ class UserModel
     .update diff
     .run()
 
-  cycleSession: (user, isInteractive) =>
+  cycleSession: (user) =>
     {lastSessionEventTime} = user
 
     currentTime = Date.now()
@@ -113,7 +113,7 @@ class UserModel
       update = {
         lastSessionEventTime: currentTime
         lastSessionEventDelta: inactivity
-        sessionEvents: user.sessionEvents + if isInteractive then 1 else 0
+        sessionEvents: user.sessionEvents + 1
       }
 
     @updateById user.id, update
