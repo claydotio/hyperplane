@@ -16,7 +16,10 @@ class EventCtrl
     event = req.params.event
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
+    isInteractive = req.body?.isInteractive
     timestamp = req.body?.timestamp or ''
+
+    isInteractive ?= true
 
     if config.ENV isnt config.ENVS.DEV and timestamp
       throw new router.Error status: 400, detail: 'timestamp not allowed'
@@ -40,16 +43,17 @@ class EventCtrl
     .then ([tags, fields]) ->
       Event.create event, tags, fields, timestamp
     .then ->
-      User.cycleSession(req.user)
-    .then (user) ->
-      Promise.all [
-        EventService.getTags req, user, userTags
-        EventService.getFields req, user, _.defaults {
-          value: user.lastSessionEventDelta
-        }, userFields
-      ]
-    .then ([tags, fields]) ->
-      Event.create 'session', tags, fields, timestamp
+      if isInteractive
+        User.cycleSession(req.user)
+        .then (user) ->
+          Promise.all [
+            EventService.getTags req, user, userTags
+            EventService.getFields req, user, _.defaults {
+              value: user.lastSessionEventDelta
+            }, userFields
+          ]
+        .then ([tags, fields]) ->
+          Event.create 'session', tags, fields, timestamp
     .then ->
       return null
 

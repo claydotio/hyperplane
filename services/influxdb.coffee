@@ -32,7 +32,6 @@ class InfluxService
       method: 'POST'
       qs:
         db: config.INFLUX.DB
-        precision: 's'
       body: """
         #{measurement},#{join(tags)} #{join(fields, true)} #{timestamp}
       """
