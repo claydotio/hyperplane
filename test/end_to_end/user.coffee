@@ -181,3 +181,10 @@ describe 'User Routes', ->
         .expect 200, Joi.object().unknown().keys {
           override_exp_1: 'blue'
         }
+
+    describe '400', ->
+      it 'rejects invalid keys', ->
+        flare
+          .thru util.createUser()
+          .get '/users/me/experiments', {key: null}
+          .expect 400
