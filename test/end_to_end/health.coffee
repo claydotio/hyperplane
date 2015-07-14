@@ -9,6 +9,7 @@ describe 'Health Check Routes', ->
         .expect 200,
           healthy: true
           rethinkdb: true
+          influxdb: true
 
   describe 'GET /ping', ->
     it 'pongs', ->
