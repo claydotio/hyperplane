@@ -38,13 +38,10 @@ assignExperiment = (experiment, userId) ->
 
   choiceRand = rng()
 
-  return _.reduce normalizedWeights, (result, weight, index) ->
-    if result
-      return result
+  choiceIndex = _.findIndex normalizedWeights, (weight) ->
+    choiceRand <= weight
 
-    if choiceRand <= weight
-      return choices[index]
-  , undefined
+  return choices[choiceIndex]
 
 class Experiment
   RETHINK_TABLES: [
