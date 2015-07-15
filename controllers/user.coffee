@@ -14,14 +14,14 @@ JOIN_EVENT_KEY = 'join'
 
 class UserCtrl
   loginOrCreate: (req) ->
-    inviterId = req.body.inviterId
+    inviterId = req.body?.inviterId
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
 
     # fake data overrides
-    joinDay = req.body.joinDay
-    inviterJoinDay = req.body.inviterJoinDay
-    timestamp = req.body.timestamp
+    joinDay = req.body?.joinDay
+    inviterJoinDay = req.body?.inviterJoinDay
+    timestamp = req.body?.timestamp
     hasRestrictedParams = joinDay or inviterJoinDay or timestamp
 
     if config.ENV isnt config.ENVS.DEV and hasRestrictedParams
@@ -34,12 +34,13 @@ class UserCtrl
     else
 
       userTagValues = _.values(userTags)
+      userFieldValues = _.values(userFields)
       valid = Joi.validate {
         inviterId: inviterId
         event: JOIN_EVENT_KEY
         keys: _.keys(userTags).concat _.keys(userFields)
-        strings: userTagValues.concat _.filter(_.values(userFields), _.isString)
-        numbers: _.filter _.values(userFields), _.isNumber
+        strings: userTagValues.concat _.filter(userFieldValues, _.isString)
+        numbers: _.filter userFieldValues, _.isNumber
       }, schemas.event,
         {presence: 'required'}
 

@@ -8,7 +8,7 @@ config = require '../config'
 
 USERS_TABLE = 'users'
 MS_IN_DAY = 1000 * 60 * 60 * 24
-SESSION_CYCLE_TIME_MS = 1000 * 60 * 30
+SESSION_CYCLE_TIME_MS = 1000 * 60 * 30 # 30 min
 
 constTimeEqual = (a, b) ->
   c = 0
@@ -24,7 +24,7 @@ constTimeEqual = (a, b) ->
 defaultUser = (user) ->
   _.defaults user, {
     id: uuid.v4()
-    joinDay: String Math.floor(Date.now() / 1000 / 60 / 60 / 24)
+    joinDay: Math.floor(Date.now() / MS_IN_DAY)
     inviterJoinDay: null
     sessionId: uuid.v4()
     lastSessionEventTime: Date.now()

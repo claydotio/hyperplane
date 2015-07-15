@@ -25,11 +25,12 @@ class EventCtrl
       throw new router.Error status: 400, detail: 'timestamp not allowed'
 
     userTagValues = _.values(userTags)
+    userFieldValues = _.values(userFields)
     valid = Joi.validate {
       event: event
       keys: _.keys(userTags).concat _.keys(userFields)
-      strings: userTagValues.concat _.filter(_.values(userFields), _.isString)
-      numbers: _.filter _.values(userFields), _.isNumber
+      strings: userTagValues.concat _.filter(userFieldValues, _.isString)
+      numbers: _.filter userFieldValues, _.isNumber
     }, schemas.event,
       {presence: 'required'}
 

@@ -18,8 +18,8 @@ class EventService
         uaOSVersion: parser.getOS().version
         uaDeviceModel: parser.getDevice().model
         language: negotiator.language()
-        joinDay: user.joinDay
-        inviterJoinDay: user.inviterJoinDay or undefined
+        joinDay: String user.joinDay
+        inviterJoinDay: String(user.inviterJoinDay) or undefined
         sessionEvents: String user.sessionEvents
       }, experimentGroups
     .then (tags) ->
