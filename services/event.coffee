@@ -29,7 +29,7 @@ class EventService
     _.defaults {
       userId: user.id
       sessionId: user.sessionId
-      ip: req.headers['x-forwards-for'] or req.connection.remoteAddress
+      ip: req.headers['x-forwarded-for'] or req.connection.remoteAddress
     }, userFields
 
 module.exports = new EventService()
