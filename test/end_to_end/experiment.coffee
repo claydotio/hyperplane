@@ -129,3 +129,29 @@ describe 'Experiment Routes', ->
             globalPercent: 'str'
           }
           .expect 400
+
+    describe 'DELETE /experiments/:id', ->
+      it 'deletes experiments', ->
+        flare
+          .thru util.loginAdmin()
+          .post '/experiments',
+            {
+              key: 'abc'
+              globalPercent: 100
+              choices: ['red', 'blue']
+            }
+          .expect 200
+          .stash 'experiment'
+          .del '/experiments/:experiment.id'
+          .expect 204
+          .get '/experiments'
+          .expect 200, Joi.array().items _.defaults {
+            id: schemas.experiment.id.invalid(':experiment.id')
+          }, schemas.experiment
+
+      describe '400', ->
+        it 'fails if invalid id', ->
+          flare
+            .thru util.loginAdmin()
+            .del '/experiments/-1'
+            .expect 400

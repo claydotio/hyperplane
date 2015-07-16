@@ -76,6 +76,12 @@ class Experiment
     .update diff
     .run()
 
+  deleteById: (id) ->
+    r.table EXPERIMENTS_TABLE
+    .get id
+    .delete()
+    .run()
+
   assign: (userId) =>
     @getAll().then (experiments) ->
       _.reduce experiments, (result, experiment) ->

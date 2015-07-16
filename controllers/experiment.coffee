@@ -22,6 +22,19 @@ class ExperimentCtrl
   getAll: ->
     Experiment.getAll()
 
+  delete: (req) ->
+    id = req.params.id
+
+    valid = Joi.validate {id}, {
+      id: schemas.experiment.id
+    }, {presence: 'required'}
+
+    if valid.error
+      throw new router.Error status: 400, detail: valid.error.message
+
+    Experiment.deleteById(id)
+    .then -> null
+
   update: (req) ->
     id = req.params.id
     diff = req.body
