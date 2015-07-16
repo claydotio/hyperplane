@@ -17,7 +17,7 @@ class EventCtrl
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
     isInteractive = req.body?.isInteractive
-    timestamp = req.body?.timestamp or ''
+    timestamp = req.body?.timestamp
 
     isInteractive ?= true
 

@@ -9,6 +9,7 @@ InfluxService = require '../services/influxdb'
 util = require '../test/end_to_end/util'
 
 MS_IN_DAY = 1000 * 60 * 60 * 24
+SECONDS_TO_NS = 1000000 * 1000 # nanoseconds per second
 
 dropRethink = ->
   r.dbList()
@@ -26,6 +27,9 @@ dropInflux = ->
 
     if hasDatabase
       InfluxService.dropDatabase(config.INFLUX.DB)
+
+toNS = (milliseconds) ->
+  new Date(parseInt(milliseconds)) * SECONDS_TO_NS
 
 games = ['fruit_ninja', 'flappy_bird']
 
@@ -122,7 +126,7 @@ Promise.all [
           joinDay: joinDayEpoch
           inviterJoinDay
           # Avoid influxdb de-duplication by adding small value
-          timestamp: String Math.floor(joinDate / 1000 + index)
+          timestamp: String toNS(Math.floor(joinDate / 1000 + index))
         })
         .thru (flare) ->
           Promise.each _.range(daysToSimulate), (day) ->
@@ -160,12 +164,15 @@ Promise.all [
                     .post "/events/#{event}",
                       {
                         # Avoid influxdb de-duplication by adding small value
-                        timestamp: String timestamp + index
+                        timestamp: String toNS(timestamp + index)
                         tags:
                           game: game
                           refererHost: refererHost
                         fields:
-                          value: if event is 'revenue' then revenue else 1
+                          value: switch event
+                            when 'revenue'
+                              revenue
+                            else undefined
                       }, {
                         headers:
                           'user-agent': userAgent
