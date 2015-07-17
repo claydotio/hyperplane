@@ -79,7 +79,7 @@ Promise.all [
     adminFlare
       .post '/experiments', experiment
       .expect 200
-
+# coffeelint: disable=cyclomatic_complexity
 .then ->
   # for each app
   Promise.map games, (game) ->
@@ -132,7 +132,6 @@ Promise.all [
           flare
             .get '/users/me/experiments'
           .then ({res}) ->
-            # FIXME: cyclomatic complexity
             experiments = res.body
             Promise.each _.range(daysToSimulate), (day) ->
               timestamp = Math.floor(
@@ -190,6 +189,7 @@ Promise.all [
                         }
                       .expect 204
     , {concurrency: 100}
+# coffeelint: enable=cyclomatic_complexity
 .then ->
   console.log 'DONE!'
 .catch (err) ->
