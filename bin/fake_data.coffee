@@ -84,7 +84,7 @@ Promise.all [
   # for each app
   Promise.map games, (game) ->
     # 50 users
-    Promise.map _.range(50), (index) ->
+    Promise.map _.range(500), (index) ->
       daysToSimulate = 8
       activeDays = _.sample [1, 1, 1, 2, 3]
       joinDay = _.sample _.range(daysToSimulate)
@@ -129,57 +129,66 @@ Promise.all [
           timestamp: String toNS(Math.floor(joinDate / 1000 + index))
         })
         .thru (flare) ->
-          Promise.each _.range(daysToSimulate), (day) ->
-            timestamp = Math.floor(
-              (Date.now() - MS_IN_DAY * (daysToSimulate - day)) / 1000
-            )
-            refererHost = _.sample [
-              'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
-            ]
+          flare
+            .get '/users/me/experiments'
+          .then ({res}) ->
+            # FIXME: cyclomatic complexity
+            experiments = res.body
+            Promise.each _.range(daysToSimulate), (day) ->
+              timestamp = Math.floor(
+                (Date.now() - MS_IN_DAY * (daysToSimulate - day)) / 1000
+              )
+              refererHost = _.sample [
+                'google.com', 'clay.io', 'github.com', 'youtube.com', undefined
+              ]
 
-            events = ['view', 'pageview']
+              events = ['view', 'pageview']
 
-            if Math.random() > 0.7
-              events.push 'pageview'
+              if experiments['login_button'] is 'blue' and Math.random() > 0.7
+                events.push 'pageview'
 
-            if Math.random() > 0.2
-              events.push 'egp'
+              if Math.random() > 0.2
+                events.push 'egp'
 
-            if Math.random() > 0.1
-              events.push 'send'
+              if Math.random() > 0.1
+                events.push 'send'
 
-            if Math.random() > 0.3
-              events.push 'send'
+              if experiments['feedback'] is 'visible' and Math.random() > 0.3
+                events.push 'send'
 
-            if Math.random() > 0.5
-              events.push 'revenue'
+              if Math.random() > 0.5
+                events.push 'revenue'
 
-            revenue = Math.floor Math.random() * 100
+              revenue = Math.floor Math.random() * 100
+              if experiments['login_button'] is 'blue'
+                revenue *= 2
+              if experiments['animation'] is 'control'
+                revenue *= 3
 
-            if day >= joinDay and day < joinDay + activeDays
-              flare
-                .thru (flare) ->
-                  Promise.map events, (event, index) ->
-                    flare
-                    .post "/events/#{event}",
-                      {
-                        # Avoid influxdb de-duplication by adding small value
-                        timestamp: String toNS(timestamp + index)
-                        tags:
-                          game: game
-                          refererHost: refererHost
-                        fields:
-                          value: switch event
-                            when 'revenue'
-                              revenue
-                            else undefined
-                      }, {
-                        headers:
-                          'user-agent': userAgent
-                          'accept-language': language
-                          'x-forwards-for': ip
-                      }
-                    .expect 204
+              if day >= joinDay and day < joinDay + activeDays
+                flare
+                  .thru (flare) ->
+                    Promise.map events, (event, index) ->
+                      flare
+                      .post "/events/#{event}",
+                        {
+                          # Avoid influxdb de-duplication by adding small value
+                          timestamp: String toNS(timestamp + index)
+                          tags:
+                            game: game
+                            refererHost: refererHost
+                          fields:
+                            value: switch event
+                              when 'revenue'
+                                revenue
+                              else undefined
+                        }, {
+                          headers:
+                            'user-agent': userAgent
+                            'accept-language': language
+                            'x-forwards-for': ip
+                        }
+                      .expect 204
     , {concurrency: 100}
 .then ->
   console.log 'DONE!'
