@@ -84,7 +84,7 @@ Promise.all [
   # for each app
   Promise.map games, (game) ->
     # 50 users
-    Promise.map _.range(500), (index) ->
+    Promise.map _.range(50), (index) ->
       daysToSimulate = 8
       activeDays = _.sample [1, 1, 1, 2, 3]
       joinDay = _.sample _.range(daysToSimulate)
