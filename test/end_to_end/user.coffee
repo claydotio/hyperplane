@@ -91,6 +91,32 @@ describe 'User Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
+    it 'tracks INVITER_{experimentKey} tags', ->
+      today = Math.floor Date.now() / MS_IN_DAY
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            key: 'invi_1'
+            globalPercent: 100
+            choices: ['red', 'blue']
+            weights: [1, 0]
+          }
+        .expect 200
+        .thru util.createUser()
+        .get '/users/me/experiments'
+        .stash 'inviterExperiments'
+        .as 'nobody'
+        .post '/users',
+          inviterId: ':user.id'
+        .thru util.loginAdmin()
+        .post '/events', {
+          q: "SELECT count(userId) FROM join
+              WHERE INVITER_invi_1='red'"
+        }
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+
     describe '400', ->
       it 'errors if invalid admin info', ->
         flare
@@ -165,7 +191,7 @@ describe 'User Routes', ->
             Joi.string().valid('purple', 'yellow', 'red', 'blue')
         }
 
-    it 'allows experiment key overrides', ->
+    it 'allows experimentKey overrides', ->
       flare
         .thru util.loginAdmin()
         .post '/experiments',
@@ -176,15 +202,16 @@ describe 'User Routes', ->
             weights: [0.5, 0.5]
           }
         .expect 200
-        .thru util.createUser()
-        .get '/users/me/experiments', {key: '2'}
+        .thru util.createUser({experimentKey: '2'})
+        .get '/users/me/experiments'
         .expect 200, Joi.object().unknown().keys {
           override_exp_1: 'blue'
         }
 
     describe '400', ->
-      it 'rejects invalid keys', ->
+      it 'rejects invalid experimentKey', ->
         flare
-          .thru util.createUser()
-          .get '/users/me/experiments', {key: null}
+          .as 'nobody'
+          .post '/users',
+            experimentKey: 123
           .expect 400

@@ -82,10 +82,10 @@ class Experiment
     .delete()
     .run()
 
-  assign: (userId) =>
+  assign: (user) =>
     @getAll().then (experiments) ->
       _.reduce experiments, (result, experiment) ->
-        assigned = assignExperiment experiment, userId
+        assigned = assignExperiment experiment, user.experimentKey
 
         if assigned?
           result[experiment.key] = assigned

@@ -22,19 +22,22 @@ constTimeEqual = (a, b) ->
   return c is 0
 
 defaultUser = (user) ->
+  id = uuid.v4()
   _.defaults user, {
-    id: uuid.v4()
+    id: id
     joinDay: Math.floor(Date.now() / MS_IN_DAY)
     inviterJoinDay: null
     sessionId: uuid.v4()
     lastSessionEventTime: Date.now()
     lastSessionEventDelta: 0
     sessionEvents: 0
+    experimentKey: id
   }
 
 ADMIN = defaultUser {
   id: 'c2cc3b1b-4c6d-4837-93e3-b519d82080ca' # uuid v4
   username: 'admin'
+  experimentKey: 'c2cc3b1b-4c6d-4837-93e3-b519d82080ca' # id
 }
 
 generateAccessToken = (user) ->
@@ -134,6 +137,7 @@ class UserModel
     _.pick user, [
       'id'
       'username'
+      'experimentKey'
       'accessToken'
     ]
 

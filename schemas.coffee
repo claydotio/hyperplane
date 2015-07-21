@@ -14,9 +14,11 @@ id =  Joi.string().regex(
 adminUser =
   id: User.ADMIN.id
   username: User.ADMIN.username
+  experimentKey: User.ADMIN.id
 
 user =
   id: id
+  experimentKey: Joi.string()
 
 experiment =
   id: id

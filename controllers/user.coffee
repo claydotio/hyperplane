@@ -17,6 +17,7 @@ class UserCtrl
     inviterId = req.body?.inviterId
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
+    experimentKey = req.body?.experimentKey
 
     # fake data overrides
     joinDay = req.body?.joinDay
@@ -35,7 +36,7 @@ class UserCtrl
 
       userTagValues = _.values(userTags)
       userFieldValues = _.values(userFields)
-      valid = Joi.validate {
+      eventValid = Joi.validate {
         inviterId: inviterId
         event: JOIN_EVENT_KEY
         keys: _.keys(userTags).concat _.keys(userFields)
@@ -44,8 +45,15 @@ class UserCtrl
       }, schemas.event,
         {presence: 'required'}
 
-      if valid.error
-        throw new router.Error status: 400, detail: valid.error.message
+      if eventValid.error
+        throw new router.Error status: 400, detail: eventValid.error.message
+
+      userValid = Joi.validate {experimentKey}, {
+        experimentKey: schemas.user.experimentKey.optional()
+      }, {presence: 'required'}
+
+      if userValid.error
+        throw new router.Error status: 400, detail: userValid.error.message
 
       (if inviterId
         User.getById inviterId
@@ -53,29 +61,20 @@ class UserCtrl
         Promise.resolve null)
       .then (inviter) ->
         inviterJoinDay ?= inviter?.joinDay
-        User.create({joinDay, inviterJoinDay})
-      .tap (user) ->
-        Promise.all [
-          EventService.getTags req, user, userTags
-          EventService.getFields req, user, userFields
-        ]
-        .then ([tags, fields]) ->
-          Event.create JOIN_EVENT_KEY, tags, fields, timestamp
+        User.create({joinDay, inviterJoinDay, experimentKey})
+        .tap (user) ->
+          Promise.all [
+            EventService.getTags req, user, userTags, inviter
+            EventService.getFields req, user, userFields, inviter
+          ]
+          .then ([tags, fields]) ->
+            Event.create JOIN_EVENT_KEY, tags, fields, timestamp
 
     user.then User.embed ['accessToken']
     .then (user) ->
       User.sanitize(user.id, user)
 
   getExperiments: (req) ->
-    key = req.query.key
-
-    valid = Joi.validate {key},
-      key: Joi.string().optional()
-    , {presence: 'required'}
-
-    if valid.error
-      throw new router.Error status: 400, detail: valid.error.message
-
-    Experiment.assign key or req.user.id
+    Experiment.assign req.user
 
 module.exports = new UserCtrl()
