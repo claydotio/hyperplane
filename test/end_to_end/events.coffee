@@ -78,7 +78,7 @@ describe 'Event Routes', ->
           }
         .expect 204
         .thru util.loginAdmin()
-        .get '/events',
+        .post '/events',
           q: "SELECT count(userId) FROM share
               WHERE refererHost='google.com'"
         .expect 200, ({body}) ->
@@ -138,16 +138,16 @@ describe 'Event Routes', ->
           }
         .expect 204
         .thru util.loginAdmin()
-        .get '/events',
+        .post '/events',
           q: 'SELECT count(value) FROM view'
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
-        .get '/events',
+        .post '/events',
           q: "SELECT count(value) FROM view
               WHERE uaBrowserName='Chrome'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
-        .get '/events',
+        .post '/events',
           q: "SELECT count(value) FROM \"cancel_order\"
               WHERE language='en-US'"
         .expect 200, ({body}) ->
@@ -168,17 +168,17 @@ describe 'Event Routes', ->
         .post '/events/click', {tags: {tagA: 'tagged'}}
         .expect 204
         .thru util.loginAdmin()
-        .get '/events',
+        .post '/events',
           q: "SELECT count(distinct(sessionId)) FROM click
               WHERE sessionEvents='2'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
-        .get '/events',
+        .post '/events',
           q: "SELECT count(distinct(sessionId)) FROM click
               WHERE sessionEvents='1'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
-        .get '/events',
+        .post '/events',
           q: "SELECT count(distinct(sessionId)) FROM session
               WHERE tagA='tagged'"
         .expect 200, ({body}) ->
@@ -193,7 +193,7 @@ describe 'Event Routes', ->
         .post '/events/isinteractive', {isInteractive: false, tags: {xx: 'x'}}
         .expect 204
         .thru util.loginAdmin()
-        .get '/events',
+        .post '/events',
           q: "SELECT count(distinct(sessionId)) FROM session
               WHERE xx='x'"
         .expect 200, ({body}) ->
@@ -203,5 +203,5 @@ describe 'Event Routes', ->
       it 'fails if missing q', ->
         flare
           .thru util.loginAdmin()
-          .get '/events'
+          .post '/events'
           .expect 400

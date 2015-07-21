@@ -60,7 +60,7 @@ describe 'User Routes', ->
       flare
         .thru util.createUser()
         .thru util.loginAdmin()
-        .get '/events', {
+        .post '/events', {
           q: 'SELECT count(userId) FROM join'
         }
         .expect 200, ({body}) ->
@@ -70,7 +70,7 @@ describe 'User Routes', ->
       flare
         .thru util.createUser({tags: {tagA: 'abc'}})
         .thru util.loginAdmin()
-        .get '/events', {
+        .post '/events', {
           q: 'SELECT count(userId) FROM join WHERE tagA=\'abc\''
         }
         .expect 200, ({body}) ->
@@ -84,7 +84,7 @@ describe 'User Routes', ->
         .post '/users',
           inviterId: ':user.id'
         .thru util.loginAdmin()
-        .get '/events', {
+        .post '/events', {
           q: "SELECT count(userId) FROM join
               WHERE inviterJoinDay='#{today}'"
         }

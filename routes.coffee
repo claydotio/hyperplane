@@ -44,7 +44,8 @@ route 'get', '/users/me/experiments',
 # Admin Routes    #
 ###################
 
-routeAdmin 'get', '/events',
+# queries can get long (due to batching), and not fit in a url
+routeAdmin 'post', '/events',
   EventCtrl.find
 
 routeAdmin 'post', '/experiments',

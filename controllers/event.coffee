@@ -59,7 +59,7 @@ class EventCtrl
       return null
 
   find: (req) ->
-    q = req.query?.q
+    q = req.body?.q
 
     valid = Joi.validate {q},
     {
