@@ -15,8 +15,8 @@ JOIN_EVENT_KEY = 'join'
 class UserCtrl
   loginOrCreate: (req) ->
     inviterId = req.body?.inviterId
-    userTags = req.body?.tags or {}
-    userFields = req.body?.fields or {}
+    userTags = req.body?.tags
+    userFields = req.body?.fields
     experimentKey = req.body?.experimentKey
 
     # fake data overrides

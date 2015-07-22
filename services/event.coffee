@@ -7,7 +7,7 @@ Experiment = require '../models/experiment'
 INVITER_KEY_PREFIX = 'INVITER_'
 
 class EventService
-  getTags: (req, user, userTags, inviter = null) ->
+  getTags: (req, user, userTags = {}, inviter = null) ->
     parser = new UAParser req.headers['user-agent']
     negotiator = new Negotiator req
 
@@ -38,7 +38,7 @@ class EventService
       .then (inviterTags) ->
         _.defaults tags, inviterTags
 
-  getFields: (req, user, userFields, inviter = null) ->
+  getFields: (req, user, userFields = {}, inviter = null) ->
     fields = _.defaults {
       userId: user.id
       sessionId: user.sessionId
