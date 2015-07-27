@@ -20,6 +20,7 @@
     "coffee-script": "^1.9.1",
     "cors": "^2.5.3",
     "express": "^4.12.3",
+    "hiredis": "^0.4.0",
     "joi": "^6.0.8",
     "jsonwebtoken": "^5.0.1",
     "lodash": "^3.6.0",
@@ -28,6 +29,7 @@
     "node-uuid": "^1.4.3",
     "pm2": "^0.12.9",
     "promise-router": "^0.2.0",
+    "redis": "^0.12.1",
     "rethinkdbdash": "^2.0.11",
     "seedrandom": "^2.4.0",
     "ua-parser-js": "^0.7.7"

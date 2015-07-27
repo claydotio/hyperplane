@@ -8,6 +8,7 @@ config = require 'config'
 server = require 'index'
 r = require 'services/rethinkdb'
 InfluxService = require 'services/influxdb'
+redis = require 'services/redis'
 
 before ->
   nock.enableNetConnect()
@@ -32,9 +33,13 @@ before ->
       if hasDatabase
         InfluxService.dropDatabase(config.INFLUX.DB)
 
+  dropRedis = ->
+    redis.flushallAsync()
+
   Promise.all [
     dropRethink()
     dropInflux()
+    dropRedis()
   ]
   .then ->
     Promise.all [

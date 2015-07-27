@@ -33,6 +33,10 @@ config =
     HOST: env.INFLUX_HOST or 'localhost'
     PORT: 8086
     RETENTION_DAYS: 60
+  REDIS:
+    PREFIX: env.HYPERPLANE_REDIS_PREFIX or 'hyperplane'
+    HOST: env.REDIS_HOST or 'localhost'
+    PORT: 6379
   ENVS:
     DEV: 'development'
     PROD: 'production'
