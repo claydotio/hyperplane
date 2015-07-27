@@ -60,6 +60,7 @@ class EventCtrl
 
   find: (req) ->
     q = req.body?.q
+    log.info "event=find_event, q=#{q}"
 
     valid = Joi.validate {q},
     {
