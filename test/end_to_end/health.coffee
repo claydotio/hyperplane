@@ -10,6 +10,7 @@ describe 'Health Check Routes', ->
           healthy: true
           rethinkdb: true
           influxdb: true
+          redis: true
 
   describe 'GET /ping', ->
     it 'pongs', ->

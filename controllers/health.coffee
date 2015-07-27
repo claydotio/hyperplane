@@ -3,6 +3,7 @@ _ = require 'lodash'
 
 r = require '../services/rethinkdb'
 InfluxService = require '../services/influxdb'
+redis = require '../services/redis'
 
 HEALTHCHECK_TIMEOUT = 100
 
@@ -11,11 +12,13 @@ class HealthCtrl
     Promise.settle [
       r.dbList().run().timeout HEALTHCHECK_TIMEOUT
       InfluxService.getDatabases().timeout HEALTHCHECK_TIMEOUT
+      redis.getAsync('NULL').timeout HEALTHCHECK_TIMEOUT
     ]
-    .spread (rethinkdb, influxdb) ->
+    .spread (rethinkdb, influxdb, redis) ->
       result =
         rethinkdb: rethinkdb.isFulfilled()
         influxdb: influxdb.isFulfilled()
+        redis: redis.isFulfilled()
 
       result.healthy = _.every _.values result
       return result
