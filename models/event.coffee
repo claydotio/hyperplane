@@ -41,10 +41,11 @@ class Event
       InfluxService.find uncachedQueries.join '\n'
       .tap (response) ->
         redisCacheable = _.flatten _.filter _.map uncachedQueries, (query) ->
-          if isCacheable query
+          result = response.results[uncachedQueries.indexOf(query)]
+          if isCacheable(query) and result? and not result.error
             [
               "#{PREFIX}:#{query}"
-              JSON.stringify response.results[uncachedQueries.indexOf(query)]
+              JSON.stringify result
             ]
         unless _.isEmpty redisCacheable
           redis.msetAsync redisCacheable
