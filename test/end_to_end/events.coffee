@@ -84,56 +84,6 @@ describe 'Event Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
-    it 'gets cached event results', ->
-      firstReqStart = null
-      firstReqTime = null
-      secondReqStart = null
-      flare
-        .thru util.createUser()
-        .post '/events/cache',
-          {
-            tags:
-              refererHost: 'google.com'
-          }
-        .expect 204
-        .post '/events/cache',
-          {
-            tags:
-              refererHost: 'clay.io'
-          }
-        .expect 204
-        .thru util.loginAdmin()
-        .thru (flare) ->
-          firstReqStart = Date.now()
-          return flare
-        .post '/events',
-          q: "SELECT count(userId) FROM cache
-              WHERE refererHost='google.com'\n
-              SELECT count(userId) FROM cache
-                  WHERE refererHost='clay.io'"
-        .thru (flare) ->
-          firstReqTime = Date.now() - firstReqStart
-          return flare
-        .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 1
-          body.results[1].series[0].values[0][1].should.be 1
-        .thru (flare) ->
-          secondReqStart = Date.now()
-          return flare
-        .post '/events',
-          q: "SELECT count(userId) FROM cache
-              WHERE refererHost='google.com'\n
-              SELECT count(userId) FROM cache
-                  WHERE refererHost='clay.io'"
-        .thru (flare) ->
-          secondReqTime = Date.now() - secondReqStart
-          (firstReqTime >= secondReqTime).should.be true
-          return flare
-        .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 1
-          body.results[1].series[0].values[0][1].should.be 1
-
-
     it 'gets experiment results for auto added tags', ->
       flare
         .thru util.createUser()

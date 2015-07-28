@@ -8,6 +8,11 @@ config = require '../config'
 
 PREFIX = config.REDIS.PREFIX + ':event'
 
+isCacheable = (query) ->
+  hasSpecificTimeRange = _.indexOf(query, ' time <') isnt -1 and
+    _.indexOf(query, 'now()') is -1
+  return hasSpecificTimeRange
+
 class Event
   create: (event, tags, fields, timestampNS) ->
     InfluxService.write event, tags, fields, timestampNS
@@ -35,11 +40,14 @@ class Event
 
       InfluxService.find uncachedQueries.join '\n'
       .tap (response) ->
-        redis.msetAsync _.flatten _.map uncachedQueries, (query) ->
-          [
-            "#{PREFIX}:#{query}"
-            JSON.stringify response.results[uncachedQueries.indexOf(query)]
-          ]
+        redisCacheable = _.flatten _.filter _.map uncachedQueries, (query) ->
+          if isCacheable query
+            [
+              "#{PREFIX}:#{query}"
+              JSON.stringify response.results[uncachedQueries.indexOf(query)]
+            ]
+        unless _.isEmpty redisCacheable
+          redis.msetAsync redisCacheable
       .then (response) ->
         mergedResults = _.map queries, (query, index) ->
           if cached[index]?

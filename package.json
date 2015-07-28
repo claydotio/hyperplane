@@ -35,15 +35,16 @@
     "ua-parser-js": "^0.7.7"
   },
   "devDependencies": {
-    "clay-coffeescript-style-guide": "^1.0.0",
-    "gulp-coffee-istanbul": "^0.7.0",
-    "nock": "^2.5.0",
     "clay-chai": "0.0.3",
+    "clay-coffeescript-style-guide": "^1.0.0",
     "flare-gun": "^0.6.0",
     "gulp": "^3.8.11",
+    "gulp-coffee-istanbul": "^0.7.0",
     "gulp-coffeelint": "^0.4.0",
     "gulp-mocha": "^2.0.0",
     "gulp-nodemon": "^2.0.2",
-    "gulp-shell": "^0.4.0"
+    "gulp-shell": "^0.4.0",
+    "nock": "^2.5.0",
+    "rewire": "^2.3.4"
   }
 }
