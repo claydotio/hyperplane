@@ -22,7 +22,7 @@ constTimeEqual = (a, b) ->
   return c is 0
 
 defaultUser = (user) ->
-  id = user.id or uuid.v4()
+  id = user?.id or uuid.v4()
   _.defaults user, {
     id: id
     joinDay: Math.floor(Date.now() / MS_IN_DAY)
