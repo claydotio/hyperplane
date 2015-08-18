@@ -27,7 +27,6 @@
     "loglevel": "^1.2.0",
     "negotiator": "^0.5.3",
     "node-uuid": "^1.4.3",
-    "pm2": "^0.12.9",
     "promise-router": "^0.2.0",
     "redis": "^0.12.1",
     "rethinkdbdash": "^2.0.11",

@@ -1,16 +1,4 @@
 #!/bin/sh
-[ -z "$LOG_DIR" ] && export LOG_DIR=/tmp/hyperplane
-[ -z "$LOG_NAME" ] && export LOG_NAME=hyperplane
 export NODE_ENV=production
 
-mkdir -p $LOG_DIR
-
-./node_modules/pm2/bin/pm2 \
-  start ./bin/server.coffee \
-  -i 0 \
-  --name $LOG_NAME \
-  --merge-logs \
-  --no-daemon \
-  -o $LOG_DIR/$LOG_NAME.log \
-  -e $LOG_DIR/$LOG_NAME.error.log \
-  2>&1 | tee $LOG_DIR/$LOG_NAME.pm2.log
+./node_modules/coffee-script/bin/coffee ./bin/server.coffee
