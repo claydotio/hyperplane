@@ -29,7 +29,7 @@ class AuthService
         Promise.resolve null
     ).then (user) ->
       if not user?
-        next new router.Error status: 401, detail: 'Unauthorized'
+        next()
       else
         # Authentication successful
         req.user = user
