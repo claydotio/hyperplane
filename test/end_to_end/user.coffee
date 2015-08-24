@@ -120,14 +120,14 @@ describe 'User Routes', ->
     describe '400', ->
       it 'errors if invalid admin info', ->
         flare
-          .post '/users', {},
+          .get '/users/me/experiments',
             {
               auth:
                 username: 'invalid'
                 password: config.ADMIN_PASSWORD
             }
           .expect 401
-          .post '/users', {},
+          .get '/users/me/experiments',
             {
               auth:
                 username: 'admin'

@@ -2,6 +2,7 @@ _ = require 'lodash'
 Promise = require 'bluebird'
 uuid = require 'node-uuid'
 jwt = require 'jsonwebtoken'
+moment = require 'moment-timezone'
 
 r = require '../services/rethinkdb'
 config = require '../config'
@@ -25,7 +26,7 @@ defaultUser = (user) ->
   id = user?.id or uuid.v4()
   _.defaults user, {
     id: id
-    joinDay: Math.floor(Date.now() / MS_IN_DAY)
+    joinDay: Math.floor(moment().tz(config.TIME_ZONE) / MS_IN_DAY)
     inviterJoinDay: null
     sessionId: uuid.v4()
     lastSessionEventTime: Date.now()

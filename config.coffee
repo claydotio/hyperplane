@@ -22,6 +22,7 @@ config =
   DEBUG: if env.DEBUG then env.DEBUG is '1' else true
   PORT: env.HYPERPLANE_PORT or env.PORT or 50180
   ENV: env.NODE_ENV
+  TIME_ZONE: env.TIME_ZONE or 'America/Los_Angeles'
   JWT_ISSUER: 'hyperplane'
   JWT_SECRET: env.HYPERPLANE_JWT_SECRET
   ADMIN_PASSWORD: env.HYPERPLANE_ADMIN_PASSWORD or 'insecurepassword'
