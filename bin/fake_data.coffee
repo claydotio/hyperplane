@@ -174,7 +174,7 @@ Promise.all [
                           # Avoid influxdb de-duplication by adding small value
                           timestamp: String toNS(timestamp + index)
                           tags:
-                            game: game
+                            app: game
                             refererHost: refererHost
                           fields:
                             value: switch event
