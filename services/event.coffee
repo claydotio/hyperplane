@@ -39,10 +39,12 @@ class EventService
         _.defaults tags, inviterTags
 
   getFields: (req, user, userFields = {}, inviter = null) ->
+    forwardedFor = req.headers['x-forwarded-for'] or
+      req.connection.remoteAddress or ''
     fields = _.defaults {
       userId: user.id
       sessionId: user.sessionId
-      ip: req.headers['x-forwarded-for'] or req.connection.remoteAddress
+      ip: forwardedFor.split(',')[0].trim() or null
     }, userFields
 
     if inviter
