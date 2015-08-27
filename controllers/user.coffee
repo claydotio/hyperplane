@@ -14,6 +14,7 @@ JOIN_EVENT_KEY = 'join'
 
 class UserCtrl
   loginOrCreate: (req) ->
+    app = req.body?.app
     inviterId = req.body?.inviterId
     userTags = req.body?.tags
     userFields = req.body?.fields
@@ -37,6 +38,7 @@ class UserCtrl
       userTagValues = _.values(userTags)
       userFieldValues = _.values(userFields)
       eventValid = Joi.validate {
+        app: app
         inviterId: inviterId
         event: JOIN_EVENT_KEY
         keys: _.keys(userTags).concat _.keys(userFields)
@@ -64,7 +66,7 @@ class UserCtrl
         User.create({joinDay, inviterJoinDay, experimentKey})
         .tap (user) ->
           Promise.all [
-            EventService.getTags req, user, userTags, inviter
+            EventService.getTags req, user, app, userTags, inviter
             EventService.getFields req, user, userFields, inviter
           ]
           .then ([tags, fields]) ->
@@ -76,5 +78,9 @@ class UserCtrl
 
   getExperiments: (req) ->
     Experiment.assign req.user
+
+  getExperimentsByApp: (req) ->
+    app = req.params.app
+    Experiment.assignByApp req.user, app
 
 module.exports = new UserCtrl()

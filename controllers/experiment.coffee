@@ -11,7 +11,7 @@ class ExperimentCtrl
     experiment = req.body or {}
 
     valid = Joi.validate experiment,
-    _.defaults {id: schemas.experiment.id.forbidden()}, schemas.experiment
+    _.defaults({id: schemas.experiment.id.forbidden()}, schemas.experiment)
     , {presence: 'required'}
 
     if valid.error

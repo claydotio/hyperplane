@@ -12,6 +12,7 @@ EXPERIMENTS_TABLE = 'experiments'
 defaultExperiment = (experiment) ->
   _.defaults experiment, {
     id: uuid.v4()
+    apps: []
     key: null
     globalPercent: 100
     choices: []
@@ -85,6 +86,19 @@ class Experiment
   assign: (user) =>
     @getAll().then (experiments) ->
       _.reduce experiments, (result, experiment) ->
+        assigned = assignExperiment experiment, user.experimentKey
+
+        if assigned?
+          result[experiment.key] = assigned
+
+        return result
+      , {}
+
+  assignByApp: (user, app) =>
+    @getAll().then (experiments) ->
+      appExperiments = _.filter experiments, (experiment) ->
+        _.includes experiment.apps, app
+      _.reduce appExperiments, (result, experiment) ->
         assigned = assignExperiment experiment, user.experimentKey
 
         if assigned?

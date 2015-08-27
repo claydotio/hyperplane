@@ -48,26 +48,31 @@ Promise.all [
 
   experiments = [
     {
+      apps: ['fruit_ninja', 'flappy_bird']
       key: 'login_button'
       globalPercent: 100
       choices: ['control', 'blue']
     }
     {
+      apps: ['flappy_bird']
       key: 'invite_landing'
       globalPercent: 100
       choices: ['control', 'purple', 'yellow']
     }
     {
+      apps: ['flappy_bird']
       key: 'feedback'
       globalPercent: 10
       choices: ['control', 'visible']
     }
     {
+      apps: ['fruit_ninja']
       key: 'share_icon'
       globalPercent: 100
       choices: ['control', 'big_red', 'big_blue', 'small_red', 'small_blue']
     }
     {
+      apps: ['fruit_ninja']
       key: 'animation'
       globalPercent: 100
       choices: ['control', 'animated']
@@ -123,6 +128,7 @@ Promise.all [
 
       flare
         .thru util.createUser({
+          app: game
           joinDay: joinDayEpoch
           inviterJoinDay
           # Avoid influxdb de-duplication by adding small value
@@ -130,7 +136,7 @@ Promise.all [
         })
         .thru (flare) ->
           flare
-            .get '/users/me/experiments'
+            .get '/users/me/experiments/' + game
           .then ({res}) ->
             experiments = res.body
             Promise.each _.range(daysToSimulate), (day) ->
@@ -143,7 +149,8 @@ Promise.all [
 
               events = ['view', 'pageview']
 
-              if experiments['login_button'] is 'blue' and Math.random() > 0.7
+              if experiments['login_button'] is 'blue' and
+                  Math.random() > 0.7
                 events.push 'pageview'
 
               if Math.random() > 0.2
@@ -152,7 +159,8 @@ Promise.all [
               if Math.random() > 0.1
                 events.push 'send'
 
-              if experiments['feedback'] is 'visible' and Math.random() > 0.3
+              if experiments['feedback'] is 'visible' and
+                  Math.random() > 0.3
                 events.push 'send'
 
               if Math.random() > 0.5
@@ -173,8 +181,8 @@ Promise.all [
                         {
                           # Avoid influxdb de-duplication by adding small value
                           timestamp: String toNS(timestamp + index)
+                          app: game
                           tags:
-                            app: game
                             refererHost: refererHost
                           fields:
                             value: switch event

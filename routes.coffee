@@ -37,8 +37,13 @@ routePublic 'post', '/users',
 route 'post', '/events/:event',
   EventCtrl.create
 
+# LEGACY START
 route 'get', '/users/me/experiments',
   UserCtrl.getExperiments
+# LEGACY END
+
+route 'get', '/users/me/experiments/:app',
+  UserCtrl.getExperimentsByApp
 
 ###################
 # Admin Routes    #

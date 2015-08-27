@@ -14,11 +14,13 @@ describe 'Experiment Routes', ->
         .thru util.loginAdmin()
         .post '/experiments',
           {
+            apps: ['test_app']
             key: 'text_exp'
             globalPercent: 100
             choices: ['red', 'blue']
           }
         .expect 200, _.defaults {
+          apps: schemas.experiment.apps.length(1)
           key: 'text_exp'
           globalPercent: 100
           choices: schemas.experiment.choices.length(2)
@@ -29,16 +31,33 @@ describe 'Experiment Routes', ->
         .thru util.loginAdmin()
         .post '/experiments',
           {
+            apps: ['test_app']
             key: 'text_exp'
             globalPercent: 100
             choices: ['red', 'blue']
             weights: [0.3, 0.7]
           }
         .expect 200, _.defaults {
+          apps: schemas.experiment.apps.length(1)
           key: 'text_exp'
           globalPercent: 100
           choices: schemas.experiment.choices.length(2)
           weights: schemas.experiment.weights.length(2)
+        }, schemas.experiment
+
+    it 'creates an experiment with multiple apps', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            apps: ['abc', 'xyz']
+            key: 'abc_xyz_text_exp'
+            globalPercent: 100
+            choices: ['red', 'blue']
+          }
+        .expect 200, _.defaults {
+          apps: schemas.experiment.apps.length(2)
+          key: 'abc_xyz_text_exp'
         }, schemas.experiment
 
     describe '400', ->
@@ -55,6 +74,7 @@ describe 'Experiment Routes', ->
         flare
           .post '/experiments',
             {
+              apps: ['test_app']
               key: 'text_exp'
               globalPercent: 100
               choices: ['red', 'blue']
@@ -66,6 +86,7 @@ describe 'Experiment Routes', ->
           .thru util.createUser()
           .post '/experiments',
             {
+              apps: ['test_app']
               key: 'text_exp'
               globalPercent: 100
               choices: ['red', 'blue']
@@ -78,6 +99,7 @@ describe 'Experiment Routes', ->
         .thru util.loginAdmin()
         .post '/experiments',
           {
+            apps: ['test']
             key: 'abc'
             globalPercent: 100
             choices: ['red', 'blue']
@@ -85,6 +107,7 @@ describe 'Experiment Routes', ->
         .expect 200
         .post '/experiments',
           {
+            apps: ['test_2', 'test']
             key: 'xyz'
             globalPercent: 100
             choices: ['red', 'blue']
@@ -99,6 +122,7 @@ describe 'Experiment Routes', ->
         .thru util.loginAdmin()
         .post '/experiments',
           {
+            apps: ['test']
             key: 'abc'
             globalPercent: 100
             choices: ['red', 'blue']
@@ -119,6 +143,7 @@ describe 'Experiment Routes', ->
           .thru util.loginAdmin()
           .post '/experiments',
             {
+              apps: ['test']
               key: 'abc'
               globalPercent: 100
               choices: ['red', 'blue']
@@ -136,6 +161,7 @@ describe 'Experiment Routes', ->
           .thru util.loginAdmin()
           .post '/experiments',
             {
+              apps: ['test']
               key: 'abc'
               globalPercent: 100
               choices: ['red', 'blue']

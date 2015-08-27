@@ -22,12 +22,17 @@ user =
 
 experiment =
   id: id
+  apps: Joi.array().min(1).items Joi.string().token()
   key: Joi.string().token()
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string().token()
   weights: Joi.array().optional().items Joi.number()
 
 event =
+  # LEGACY START
+  # This should not be optional
+  app: Joi.string().min(1).max(100).token().optional()
+  # LEGACY END
   inviterId: id.optional()
   event: Joi.string().min(1).max(100).token() # Arbitrary min and max
   keys: Joi.array().items \

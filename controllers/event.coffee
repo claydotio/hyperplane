@@ -14,6 +14,7 @@ EventService = require '../services/event'
 class EventCtrl
   create: (req) ->
     event = req.params.event
+    app = req.body?.app
     userTags = req.body?.tags or {}
     userFields = req.body?.fields or {}
     isInteractive = req.body?.isInteractive
@@ -27,6 +28,7 @@ class EventCtrl
     userTagValues = _.values(userTags)
     userFieldValues = _.values(userFields)
     valid = Joi.validate {
+      app: app
       event: event
       keys: _.keys(userTags).concat _.keys(userFields)
       strings: userTagValues.concat _.filter(userFieldValues, _.isString)
@@ -38,7 +40,7 @@ class EventCtrl
       throw new router.Error status: 400, detail: valid.error.message
 
     Promise.all [
-      EventService.getTags req, req.user, userTags
+      EventService.getTags req, req.user, app, userTags
       EventService.getFields req, req.user, userFields
     ]
     .then ([tags, fields]) ->
@@ -48,7 +50,7 @@ class EventCtrl
         User.cycleSession(req.user)
         .then (user) ->
           Promise.all [
-            EventService.getTags req, user, userTags
+            EventService.getTags req, user, app, userTags
             EventService.getFields req, user, _.defaults {
               value: user.lastSessionEventDelta
             }, userFields

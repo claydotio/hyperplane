@@ -7,13 +7,21 @@ Experiment = require '../models/experiment'
 INVITER_KEY_PREFIX = 'INVITER_'
 
 class EventService
-  getTags: (req, user, userTags = {}, inviter = null) ->
+  getTags: (req, user, app = null, userTags = {}, inviter = null) ->
     parser = new UAParser req.headers['user-agent']
     negotiator = new Negotiator req
 
-    Experiment.assign user
-    .then (experimentGroups) ->
+    (if app?
+      Experiment.assignByApp user, app
+      .then (experimentGroups) ->
+        _.transform experimentGroups, (result, value, key) ->
+          result[app + '_' + key] = value
+        , {}
+    else
+      Experiment.assign user
+    ).then (experimentGroups) ->
       _.defaults {
+        app: app
         uaBrowserName: parser.getBrowser().name
         uaBrowserVersionMajor: parser.getBrowser().major
         uaOSName: parser.getOS().name
@@ -33,7 +41,7 @@ class EventService
       Experiment.assign inviter
       .then (experimentGroups) ->
         _.transform experimentGroups, (result, value, key) ->
-          result[INVITER_KEY_PREFIX + key] = value
+          result[INVITER_KEY_PREFIX + app  + '_' + key] = value
         , {}
       .then (inviterTags) ->
         _.defaults tags, inviterTags
