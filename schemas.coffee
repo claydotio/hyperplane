@@ -31,7 +31,7 @@ experiment =
 event =
   # LEGACY START
   # This should not be optional
-  app: Joi.string().min(1).max(100).token().optional()
+  app: Joi.string().min(1).max(100).regex(/^[\w\-]+$/).optional()
   # LEGACY END
   inviterId: id.optional()
   event: Joi.string().min(1).max(100).token() # Arbitrary min and max
