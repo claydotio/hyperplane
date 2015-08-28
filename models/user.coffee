@@ -24,9 +24,11 @@ constTimeEqual = (a, b) ->
 
 defaultUser = (user) ->
   id = user?.id or uuid.v4()
+  timeZoneOffsetMS = moment.tz
+    .zone(config.TIME_ZONE).parse(new Date()) * 60 * 1000
   _.defaults user, {
     id: id
-    joinDay: Math.floor(moment().tz(config.TIME_ZONE) / MS_IN_DAY)
+    joinDay: Math.floor((new Date() - timeZoneOffsetMS) / MS_IN_DAY)
     inviterJoinDay: null
     sessionId: uuid.v4()
     lastSessionEventTime: Date.now()
