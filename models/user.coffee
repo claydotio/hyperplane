@@ -2,13 +2,12 @@ _ = require 'lodash'
 Promise = require 'bluebird'
 uuid = require 'node-uuid'
 jwt = require 'jsonwebtoken'
-moment = require 'moment-timezone'
 
 r = require '../services/rethinkdb'
 config = require '../config'
+util = require '../lib/util'
 
 USERS_TABLE = 'users'
-MS_IN_DAY = 1000 * 60 * 60 * 24
 SESSION_CYCLE_TIME_MS = 1000 * 60 * 30 # 30 min
 
 constTimeEqual = (a, b) ->
@@ -24,11 +23,10 @@ constTimeEqual = (a, b) ->
 
 defaultUser = (user) ->
   id = user?.id or uuid.v4()
-  timeZoneOffsetMS = moment.tz
-    .zone(config.TIME_ZONE).parse(new Date()) * 60 * 1000
+
   _.defaults user, {
     id: id
-    joinDay: Math.floor((new Date() - timeZoneOffsetMS) / MS_IN_DAY)
+    joinDay: util.dateToDay(new Date(), config.TIME_ZONE)
     inviterJoinDay: null
     sessionId: uuid.v4()
     lastSessionEventTime: Date.now()

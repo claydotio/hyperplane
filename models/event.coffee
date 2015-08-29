@@ -5,11 +5,9 @@ log = require 'loglevel'
 InfluxService = require '../services/influxdb'
 redis = require '../services/redis'
 config = require '../config'
+util = require '../lib/util'
 
 PREFIX = config.REDIS.PREFIX + ':event'
-
-dateToDay = (date) ->
-  Math.floor(date / 1000 / 60 / 60 / 24)
 
 timeSuffixToMs = (time, suffix) ->
   Math.floor switch suffix
@@ -31,9 +29,9 @@ timeSuffixToMs = (time, suffix) ->
       time
 
 isValidDate = (date) ->
-  now = new Date()
-  today = dateToDay now
-  dateToDay(date) < today
+  today = util.dateToDay new Date(), config.TIME_ZONE
+  # Server time is always in UTC (which means influxdb will be in UTC time)
+  util.dateToDay(date, 'UTC') < today
 
 isCacheable = (query) ->
   hasSpecificTimeRange = /\stime\s?(<|<=|=)/.test(query) and
@@ -53,6 +51,7 @@ isCacheable = (query) ->
       (\d+)             # time in number format
       (n|u|ms|s|m|h|d)? # valid time suffix
     ///
+
 
     date = new Date(time)
     if isNaN(date) and timeMatch

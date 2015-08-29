@@ -7,8 +7,7 @@ should = require('clay-chai').should()
 schemas = require '../../schemas'
 config = require '../../config'
 util = require './util'
-
-MS_IN_DAY = 1000 * 60 * 60 * 24
+srcUtil = require '../../lib/util'
 
 describe 'User Routes', ->
   describe 'POST /users', ->
@@ -78,7 +77,7 @@ describe 'User Routes', ->
           body.results[0].series[0].values[0][1].should.be 1
 
     it 'tracks inviterJoinDay', ->
-      today = Math.floor Date.now() / MS_IN_DAY
+      today = srcUtil.dateToDay new Date(), config.TIME_ZONE
       flare
         .thru util.createUser()
         .as 'nobody'

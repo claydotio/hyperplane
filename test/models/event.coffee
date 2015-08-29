@@ -3,13 +3,9 @@ rewire = require 'rewire'
 Promise = require 'bluebird'
 assert = require 'assert'
 
+config = require '../../config'
+util = require '../../lib/util'
 Event = rewire '../../models/event'
-
-dateToDay = (date) ->
-  Math.floor(date / 1000 / 60 / 60 / 24)
-
-dateToHour = (date) ->
-  Math.floor(date / 1000 / 60 / 60)
 
 describe 'Event Model', ->
   it 'gets cached event results', ->
@@ -44,10 +40,10 @@ describe 'Event Model', ->
     isCacheable = Event.__get__('isCacheable')
     nowMicroseconds = new Date() * 1000
     pastMicroseconds = new Date('2013-08-13') * 1000
-    nowDay = dateToDay new Date()
-    pastDay = dateToDay new Date('2013-08-13')
-    nowHours = dateToHour new Date()
-    pastHours = dateToHour new Date('2013-08-13')
+    nowDay = util.dateToDay new Date(), config.TIME_ZONE
+    pastDay = util.dateToDay new Date('2013-08-13'), config.TIME_ZONE
+    nowHours = util.dateToHour new Date(), config.TIME_ZONE
+    pastHours = util.dateToHour new Date('2013-08-13'), config.TIME_ZONE
 
     # base
     assert.equal isCacheable('WHERE z=1'), false
