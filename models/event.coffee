@@ -29,9 +29,7 @@ timeSuffixToMs = (time, suffix) ->
       time
 
 isValidDate = (date) ->
-  today = util.dateToDay new Date(), config.TIME_ZONE
-  # Server time is always in UTC (which means influxdb will be in UTC time)
-  util.dateToDay(date, 'UTC') < today
+  date < new Date()
 
 isCacheable = (query) ->
   hasSpecificTimeRange = /\stime\s?(<|<=|=)/.test(query) and
@@ -51,7 +49,6 @@ isCacheable = (query) ->
       (\d+)             # time in number format
       (n|u|ms|s|m|h|d)? # valid time suffix
     ///
-
 
     date = new Date(time)
     if isNaN(date) and timeMatch

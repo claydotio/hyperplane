@@ -38,7 +38,8 @@ describe 'Event Model', ->
 
   it 'determines cacheability using parsed times', ->
     isCacheable = Event.__get__('isCacheable')
-    nowMicroseconds = new Date() * 1000
+    # buffer because of run time cost
+    nowMicroseconds = new Date() * 1000 + 5000
     pastMicroseconds = new Date('2013-08-13') * 1000
     nowDay = util.dateToDay new Date(), config.TIME_ZONE
     pastDay = util.dateToDay new Date('2013-08-13'), config.TIME_ZONE
@@ -79,11 +80,9 @@ describe 'Event Model', ->
     # current time as day
     assert.equal isCacheable("WHERE time > #{nowDay}d"), false
     assert.equal isCacheable("WHERE time >= #{nowDay}d"), false
-    assert.equal isCacheable("WHERE time = #{nowDay}d"), false
-    assert.equal isCacheable("WHERE time <= #{nowDay}d"), false
-
-    # false for simplicity
-    assert.equal isCacheable("WHERE time < #{nowDay}d"), false
+    assert.equal isCacheable("WHERE time = #{nowDay}d"), true
+    assert.equal isCacheable("WHERE time <= #{nowDay}d"), true
+    assert.equal isCacheable("WHERE time < #{nowDay}d"), true
 
     # past time as hours
     assert.equal isCacheable("WHERE time > #{pastHours}h"), false
@@ -95,9 +94,9 @@ describe 'Event Model', ->
     # current time as hours
     assert.equal isCacheable("WHERE time > #{nowHours}h"), false
     assert.equal isCacheable("WHERE time >= #{nowHours}h"), false
-    assert.equal isCacheable("WHERE time = #{nowHours}h"), false
-    assert.equal isCacheable("WHERE time < #{nowHours}h"), false
-    assert.equal isCacheable("WHERE time <= #{nowHours}h"), false
+    assert.equal isCacheable("WHERE time = #{nowHours}h"), true
+    assert.equal isCacheable("WHERE time < #{nowHours}h"), true
+    assert.equal isCacheable("WHERE time <= #{nowHours}h"), true
 
     # spacing
     assert.equal isCacheable("WHERE time>#{pastMicroseconds}"), false
