@@ -11,6 +11,8 @@ id =  Joi.string().regex(
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/ # uuid
 )
 
+appName = Joi.string().min(1).max(100).regex(/^[\w\-]+$/)
+
 adminUser =
   id: User.ADMIN.id
   username: User.ADMIN.username
@@ -22,7 +24,7 @@ user =
 
 experiment =
   id: id
-  apps: Joi.array().min(1).items Joi.string().token()
+  apps: Joi.array().min(1).items appName
   key: Joi.string().token()
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string().token()
@@ -31,7 +33,7 @@ experiment =
 event =
   # LEGACY START
   # This should not be optional
-  app: Joi.string().min(1).max(100).regex(/^[\w\-]+$/).optional()
+  app: appName.optional()
   # LEGACY END
   inviterId: id.optional()
   event: Joi.string().min(1).max(100).token() # Arbitrary min and max
@@ -45,7 +47,8 @@ event =
     Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
 
 module.exports = {
-  id: id
+  id
+  appName
   user
   adminUser
   accessToken
