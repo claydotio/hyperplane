@@ -1,9 +1,16 @@
 Joi = require 'joi'
+router = require 'promise-router'
 
 User = require './models/user'
 
 MIN_SAFE_INTEGER = -9007199254740991
 MAX_SAFE_INTEGER = 9007199254740991
+
+assert = (obj, schema) ->
+  valid = Joi.validate obj, schema, {presence: 'required', convert: false}
+
+  if valid.error
+    throw new router.Error status: 400, detail: valid.error.message
 
 accessToken = Joi.string()
 
@@ -47,6 +54,7 @@ event =
     Joi.number().integer().min(MIN_SAFE_INTEGER).max(MAX_SAFE_INTEGER)
 
 module.exports = {
+  assert
   id
   appName
   user

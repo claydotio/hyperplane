@@ -27,17 +27,14 @@ class EventCtrl
 
     userTagValues = _.values(userTags)
     userFieldValues = _.values(userFields)
-    valid = Joi.validate {
+
+    schemas.assert {
       app: app
       event: event
       keys: _.keys(userTags).concat _.keys(userFields)
       strings: userTagValues.concat _.filter(userFieldValues, _.isString)
       numbers: _.filter userFieldValues, _.isNumber
-    }, schemas.event,
-      {presence: 'required'}
-
-    if valid.error
-      throw new router.Error status: 400, detail: valid.error.message
+    }, schemas.event
 
     Promise.all [
       EventService.getTags req, req.user, app, userTags
@@ -64,13 +61,7 @@ class EventCtrl
     q = req.body?.q
     log.info "event=find_event, q=#{q}"
 
-    valid = Joi.validate {q},
-    {
-      q: Joi.string()
-    }, {presence: 'required'}
-
-    if valid.error
-      throw new router.Error status: 400, detail: valid.error.message
+    schemas.assert {q}, {q: Joi.string()}
 
     Event.find q
 

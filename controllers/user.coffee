@@ -1,5 +1,4 @@
 _ = require 'lodash'
-Joi = require 'joi'
 router = require 'promise-router'
 Promise = require 'bluebird'
 
@@ -37,25 +36,18 @@ class UserCtrl
 
       userTagValues = _.values(userTags)
       userFieldValues = _.values(userFields)
-      eventValid = Joi.validate {
+      schemas.assert {
         app: app
         inviterId: inviterId
         event: JOIN_EVENT_KEY
         keys: _.keys(userTags).concat _.keys(userFields)
         strings: userTagValues.concat _.filter(userFieldValues, _.isString)
         numbers: _.filter userFieldValues, _.isNumber
-      }, schemas.event,
-        {presence: 'required'}
+      }, schemas.event
 
-      if eventValid.error
-        throw new router.Error status: 400, detail: eventValid.error.message
-
-      userValid = Joi.validate {experimentKey}, {
+      schemas.assert {experimentKey}, {
         experimentKey: schemas.user.experimentKey.optional()
-      }, {presence: 'required'}
-
-      if userValid.error
-        throw new router.Error status: 400, detail: userValid.error.message
+      }
 
       (if inviterId
         User.getById inviterId
