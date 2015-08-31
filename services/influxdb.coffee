@@ -25,7 +25,6 @@ join = (obj, quoteStrings) ->
 
   str.slice(0, str.length - 1) # strip trailing comma
 
-
 class InfluxService
   write: (measurement, tags, fields, timestampNS = '') ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/write",
@@ -54,6 +53,9 @@ class InfluxService
       qs:
         q: "DROP DATABASE #{db}"
     }
+
+  ping: ->
+    request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/ping"
 
   getDatabases: ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {

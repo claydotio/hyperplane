@@ -11,7 +11,7 @@ class HealthCtrl
   check: ->
     Promise.settle [
       r.dbList().run().timeout HEALTHCHECK_TIMEOUT
-      InfluxService.getDatabases().timeout HEALTHCHECK_TIMEOUT
+      InfluxService.ping().timeout HEALTHCHECK_TIMEOUT
       redis.getAsync('NULL').timeout HEALTHCHECK_TIMEOUT
     ]
     .spread (rethinkdb, influxdb, redis) ->
