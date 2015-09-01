@@ -31,7 +31,7 @@ dropInflux = ->
 toNS = (milliseconds) ->
   new Date(parseInt(milliseconds)) * SECONDS_TO_NS
 
-games = ['fruit_ninja', 'flappy_bird']
+games = ['fruit-ninja', 'flappy-bird']
 
 Promise.all [
   dropRethink()
@@ -48,31 +48,31 @@ Promise.all [
 
   experiments = [
     {
-      apps: ['fruit_ninja', 'flappy_bird']
+      apps: ['fruit-ninja', 'flappy-bird']
       key: 'login_button'
       globalPercent: 100
       choices: ['control', 'blue']
     }
     {
-      apps: ['flappy_bird']
+      apps: ['flappy-bird']
       key: 'invite_landing'
       globalPercent: 100
       choices: ['control', 'purple', 'yellow']
     }
     {
-      apps: ['flappy_bird']
+      apps: ['flappy-bird']
       key: 'feedback'
       globalPercent: 10
       choices: ['control', 'visible']
     }
     {
-      apps: ['fruit_ninja']
+      apps: ['fruit-ninja']
       key: 'share_icon'
       globalPercent: 100
       choices: ['control', 'big_red', 'big_blue', 'small_red', 'small_blue']
     }
     {
-      apps: ['fruit_ninja']
+      apps: ['fruit-ninja']
       key: 'animation'
       globalPercent: 100
       choices: ['control', 'animated']
