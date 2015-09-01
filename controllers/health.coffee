@@ -5,7 +5,7 @@ r = require '../services/rethinkdb'
 InfluxService = require '../services/influxdb'
 redis = require '../services/redis'
 
-HEALTHCHECK_TIMEOUT = 200
+HEALTHCHECK_TIMEOUT = 1000
 
 class HealthCtrl
   check: ->
