@@ -11,19 +11,22 @@ escape = (str) ->
   .replace /\s/g, '\\ '
 
 join = (obj, quoteStrings) ->
-  str = _.reduce obj, (res, val, key) ->
-    if _.isNumber(val) or _.isBoolean(val)
-      res + "#{escape(key)}=#{val},"
-    else if _.isString val
-      if quoteStrings
-        res + "#{escape(key)}=\"#{escape(val)}\","
-      else
-        res + "#{escape(key)}=#{escape(val)},"
-    else
-      res
-  , ''
+  _.filter _.map obj, (val, key) ->
+    key = escape(key)
 
-  str.slice(0, str.length - 1) # strip trailing comma
+    if _.isNumber(val)
+      "#{key}=#{val}i"
+    else if _.isBoolean(val)
+      "#{key}=#{val}"
+    else if _.isString val
+      val = escape(val)
+      if quoteStrings
+        "#{key}=\"#{val}\""
+      else
+        "#{key}=#{val}"
+    else
+      null
+  .join ','
 
 class InfluxService
   write: (measurement, tags, fields, timestampNS = '') ->
