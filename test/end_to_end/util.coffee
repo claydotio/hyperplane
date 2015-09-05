@@ -1,3 +1,5 @@
+_ = require 'lodash'
+
 config = require '../../config'
 
 loginAdmin = ->
@@ -21,7 +23,7 @@ createUser = (body) ->
   return (flare) ->
     flare
       .as 'nobody'
-      .post '/users', body
+      .post '/users', _.merge {app: 'app'}, body
       .stash 'user'
       .actor 'user', {
         headers:

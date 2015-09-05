@@ -38,10 +38,7 @@ experiment =
   weights: Joi.array().optional().items Joi.number()
 
 event =
-  # LEGACY START
-  # This should not be optional
-  app: appName.optional()
-  # LEGACY END
+  app: appName
   inviterId: id.optional()
   event: Joi.string().min(1).max(100).token() # Arbitrary min and max
   keys: Joi.array().items \

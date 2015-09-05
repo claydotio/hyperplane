@@ -68,9 +68,6 @@ class UserCtrl
     .then (user) ->
       User.sanitize(user.id, user)
 
-  getExperiments: (req) ->
-    Experiment.assign req.user
-
   getExperimentsByApp: (req) ->
     app = req.params.app
     Experiment.assignByApp req.user, app

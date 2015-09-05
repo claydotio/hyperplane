@@ -43,12 +43,12 @@ describe 'User Routes', ->
 
     it 'returns new user with accessToken', ->
       flare
-        .post '/users'
+        .post '/users', {app: 'app'}
         .expect 200, _.defaults {
           accessToken: schemas.accessToken
         }, schemas.user
         .stash 'user'
-        .post '/users', {}, {
+        .post '/users', {app: 'app'}, {
           headers:
             Authorization: 'Token :user.accessToken'
         }
@@ -82,6 +82,7 @@ describe 'User Routes', ->
         .thru util.createUser()
         .as 'nobody'
         .post '/users',
+          app: 'app'
           inviterId: ':user.id'
         .thru util.loginAdmin()
         .post '/events', {
@@ -141,29 +142,6 @@ describe 'User Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 2
 
-    # LEGACY START
-    it 'tracks {experimentKey} tags', ->
-      flare
-        .thru util.loginAdmin()
-        .post '/experiments',
-          {
-            apps: ['test_experiment']
-            key: 'xx_exp_1'
-            globalPercent: 100
-            choices: ['red', 'blue']
-            weights: [1, 0]
-          }
-        .expect 200
-        .thru util.createUser()
-        .thru util.loginAdmin()
-        .post '/events', {
-          q: "SELECT count(userId) FROM join
-              WHERE xx_exp_1='red'"
-        }
-        .expect 200, ({body}) ->
-          body.results[0].series[0].values[0][1].should.be 1
-    # LEGACY END
-
     it 'tracks INVITER_{experiment} tags', ->
       flare
         .thru util.loginAdmin()
@@ -206,22 +184,6 @@ describe 'User Routes', ->
                 password: 'invalid'
             }
           .expect 401
-          # LEGACY START
-          .get '/users/me/experiments',
-            {
-              auth:
-                username: 'invalid'
-                password: config.ADMIN_PASSWORD
-            }
-          .expect 401
-          .get '/users/me/experiments',
-            {
-              auth:
-                username: 'admin'
-                password: 'invalid'
-            }
-          .expect 401
-          # LEGACY END
 
       it 'errors if contains restricted params in non-dev environment', ->
         flare
@@ -315,68 +277,3 @@ describe 'User Routes', ->
           .post '/users',
             experimentKey: 123
           .expect 400
-
-  # LEGACY START
-  describe 'GET /users/me/experiments', ->
-    it 'gets users experiments', ->
-      flare
-        .thru util.loginAdmin()
-        .post '/experiments',
-          {
-            apps: ['test']
-            key: 'flappy_bird_exp_1'
-            globalPercent: 100
-            choices: ['red', 'blue']
-            weights: [1, 0]
-          }
-        .expect 200
-        .post '/experiments',
-          {
-            apps: ['test']
-            key: 'flappy_bird_exp_2'
-            globalPercent: 100
-            choices: ['purple', 'yellow', 'red', 'blue']
-          }
-        .expect 200
-        .post '/experiments',
-          {
-            apps: ['test']
-            key: 'flappy_bird_exp_3'
-            globalPercent: 0
-            choices: ['red', 'blue']
-          }
-        .expect 200
-        .thru util.createUser()
-        .get '/users/me/experiments'
-        .expect 200, Joi.object().unknown().keys {
-          flappy_bird_exp_1: 'red'
-          flappy_bird_exp_2:
-            Joi.string().valid('purple', 'yellow', 'red', 'blue')
-        }
-
-    it 'allows experimentKey overrides', ->
-      flare
-        .thru util.loginAdmin()
-        .post '/experiments',
-          {
-            apps: ['test']
-            key: 'override_exp_1'
-            globalPercent: 100
-            choices: ['red', 'blue']
-            weights: [0.5, 0.5]
-          }
-        .expect 200
-        .thru util.createUser({experimentKey: '2'})
-        .get '/users/me/experiments'
-        .expect 200, Joi.object().unknown().keys {
-          override_exp_1: 'blue'
-        }
-
-    describe '400', ->
-      it 'rejects invalid experimentKey', ->
-        flare
-          .as 'nobody'
-          .post '/users',
-            experimentKey: 123
-          .expect 400
-  # LEGACY END

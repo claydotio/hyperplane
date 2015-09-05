@@ -83,17 +83,6 @@ class Experiment
     .delete()
     .run()
 
-  assign: (user) =>
-    @getAll().then (experiments) ->
-      _.reduce experiments, (result, experiment) ->
-        assigned = assignExperiment experiment, user.experimentKey
-
-        if assigned?
-          result[experiment.key] = assigned
-
-        return result
-      , {}
-
   assignByApp: (user, app) =>
     @getAll().then (experiments) ->
       appExperiments = _.filter experiments, (experiment) ->

@@ -14,13 +14,14 @@ describe 'Event Routes', ->
         .thru util.createUser()
         .post '/events/signup',
           {
+            app: 'app'
             tags:
               refererHost: 'google.com'
             fields:
               value: 1
           }
         .expect 204
-        .post '/events/signup'
+        .post '/events/signup', {app: 'app'}
         .expect 204
 
     describe '400', ->
@@ -29,6 +30,7 @@ describe 'Event Routes', ->
           .thru util.createUser()
           .post '/events/signup',
             {
+              app: 'app'
               timestamp: String Date.now()
               fields:
                 value: 1
@@ -40,6 +42,7 @@ describe 'Event Routes', ->
           .thru util.createUser()
           .post '/events/signup',
             {
+              app: 'app'
               fields:
                 value: 1.1
             }
@@ -50,9 +53,16 @@ describe 'Event Routes', ->
           .thru util.createUser()
           .post '/events/signup',
             {
+              app: 'app'
               tags:
                 bool: true
             }
+          .expect 400
+
+      it 'fails to create event without app', ->
+        flare
+          .thru util.createUser()
+          .post '/events/signup'
           .expect 400
 
   describe 'GET /events/?q=', ->
@@ -61,18 +71,21 @@ describe 'Event Routes', ->
         .thru util.createUser()
         .post '/events/share',
           {
+            app: 'app'
             tags:
               refererHost: 'google.com'
           }
         .expect 204
         .post '/events/share',
           {
+            app: 'app'
             tags:
               refererHost: 'clay.io'
           }
         .expect 204
         .post '/events/cancel',
           {
+            app: 'app'
             tags:
               refererHost: 'google.com'
           }
@@ -89,6 +102,7 @@ describe 'Event Routes', ->
         .thru util.createUser()
         .post '/events/view',
           {
+            app: 'app'
             fields:
               value: 1
           }, {
@@ -101,6 +115,7 @@ describe 'Event Routes', ->
         .expect 204
         .post '/events/cancel_order',
           {
+            app: 'app'
             fields:
               value: 1
           }, {
@@ -114,6 +129,7 @@ describe 'Event Routes', ->
         .thru util.createUser()
         .post '/events/view',
           {
+            app: 'app'
             fields:
               value: 1
           }, {
@@ -126,6 +142,7 @@ describe 'Event Routes', ->
         .expect 204
         .post '/events/cancel_order',
           {
+            app: 'app'
             fields:
               value: 1
           }, {
@@ -156,16 +173,16 @@ describe 'Event Routes', ->
     it 'tracks session events', ->
       flare
         .thru util.createUser()
-        .post '/events/click'
+        .post '/events/click', {app: 'app'}
         .expect 204
-        .post '/events/click'
+        .post '/events/click', {app: 'app'}
         .expect 204
         .thru util.createUser()
-        .post '/events/click'
+        .post '/events/click', {app: 'app'}
         .expect 204
-        .post '/events/click'
+        .post '/events/click', {app: 'app'}
         .expect 204
-        .post '/events/click', {tags: {tagA: 'tagged'}}
+        .post '/events/click', {app: 'app', tags: {tagA: 'tagged'}}
         .expect 204
         .thru util.loginAdmin()
         .post '/events',
@@ -187,10 +204,14 @@ describe 'Event Routes', ->
     it 'doesn\'t track session events when not labeled as interactive', ->
       flare
         .thru util.createUser()
-        .post '/events/isinteractive', tags: {xx: 'x'}
+        .post '/events/isinteractive', {app: 'app', tags: {xx: 'x'}}
         .expect 204
         .thru util.createUser()
-        .post '/events/isinteractive', {isInteractive: false, tags: {xx: 'x'}}
+        .post '/events/isinteractive', {
+          app: 'app'
+          isInteractive: false
+          tags: {xx: 'x'}
+        }
         .expect 204
         .thru util.loginAdmin()
         .post '/events',
