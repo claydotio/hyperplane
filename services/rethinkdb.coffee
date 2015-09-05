@@ -8,6 +8,5 @@ HOST = config.RETHINK.HOST
 r = require('rethinkdbdash')
   host: HOST
   db: DB
-  discovery: true
 
 module.exports = r
