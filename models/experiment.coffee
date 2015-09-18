@@ -10,13 +10,17 @@ config = require '../config'
 EXPERIMENTS_TABLE = 'experiments'
 
 defaultExperiment = (experiment) ->
-  _.defaults experiment, {
+  unless experiment?
+    return null
+
+  _.merge {
     id: uuid.v4()
     apps: []
     key: null
     globalPercent: 100
     choices: []
-  }
+    createdAt: new Date()
+  }, experiment
 
 assignExperiment = (experiment, userId) ->
   seed = experiment.key + userId

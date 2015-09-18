@@ -8,8 +8,7 @@ class ExperimentCtrl
   create: (req) ->
     experiment = req.body or {}
 
-    schemas.assert experiment,
-    _.defaults({id: schemas.experiment.id.forbidden()}, schemas.experiment)
+    schemas.assert experiment, schemas.experimentCreate
 
     Experiment.create experiment
 

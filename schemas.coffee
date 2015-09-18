@@ -36,6 +36,14 @@ experiment =
   globalPercent: Joi.number()
   choices: Joi.array().items Joi.string().token()
   weights: Joi.array().optional().items Joi.number()
+  createdAt: Joi.date().strict(false)
+
+experimentCreate =
+  apps: experiment.apps
+  key: experiment.key
+  globalPercent: experiment.globalPercent.optional()
+  choices: experiment.choices
+  weights: experiment.weights.optional()
 
 event =
   app: appName
@@ -58,5 +66,6 @@ module.exports = {
   adminUser
   accessToken
   experiment
+  experimentCreate
   event
 }
