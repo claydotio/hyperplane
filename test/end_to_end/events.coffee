@@ -97,7 +97,7 @@ describe 'Event Routes', ->
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
-    it 'gets experiment results for auto added tags', ->
+    it 'gets experiment results for auto added tags and fields', ->
       flare
         .thru util.createUser()
         .post '/events/view',
@@ -167,6 +167,11 @@ describe 'Event Routes', ->
         .post '/events',
           q: "SELECT count(value) FROM \"cancel_order\"
               WHERE language='en-US'"
+        .expect 200, ({body}) ->
+          body.results[0].series[0].values[0][1].should.be 1
+        .post '/events',
+          q: "SELECT count(value) FROM \"view\"
+              WHERE uaBrowserName='Chrome' AND ip = '127.0.0.1'"
         .expect 200, ({body}) ->
           body.results[0].series[0].values[0][1].should.be 1
 
