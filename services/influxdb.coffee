@@ -5,10 +5,11 @@ config = require '../config'
 
 escape = (str) ->
   str
-  .replace /\//g, '\\\\'
+  .replace /\\/g, '\\\\'
   .replace /,/g, '\\,'
   .replace /"/g, '\\"'
   .replace /\s/g, '\\ '
+  .replace /\=/g, '\\='
 
 join = (obj, quoteStrings) ->
   _.filter _.map obj, (val, key) ->
