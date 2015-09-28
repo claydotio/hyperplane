@@ -49,6 +49,9 @@ event =
   app: appName
   inviterId: id.optional()
   event: Joi.string().min(1).max(100).token() # Arbitrary min and max
+  userTags: Joi.object().optional()
+  userFields: Joi.object().optional()
+  isInteractive: Joi.boolean().optional()
   keys: Joi.array().items \
     Joi.string().min(1).max(100).token() # Arbitrary min and max
   strings: Joi.array().items \

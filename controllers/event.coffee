@@ -31,6 +31,9 @@ class EventCtrl
     schemas.assert {
       app: app
       event: event
+      userTags: userTags
+      userFields: userFields
+      isInteractive: isInteractive
       keys: _.keys(userTags).concat _.keys(userFields)
       strings: userTagValues.concat _.filter(userFieldValues, _.isString)
       numbers: _.filter userFieldValues, _.isNumber

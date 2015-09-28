@@ -65,6 +65,24 @@ describe 'Event Routes', ->
           .post '/events/signup'
           .expect 400
 
+      it 'fails to create event with string as fields', ->
+        flare
+          .thru util.createUser()
+          .post '/events/signup', {
+            app: 'app'
+            fields: 'string'
+          }
+          .expect 400
+
+      it 'fails if isInteractive not a boolean when provided', ->
+        flare
+          .thru util.createUser()
+          .post '/events/signup', {
+            app: 'app'
+            isInteractive: 'false'
+          }
+          .expect 400
+
   describe 'GET /events/?q=', ->
     it 'gets event results', ->
       flare
