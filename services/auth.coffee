@@ -9,6 +9,8 @@ class AuthService
   # add user object as req.user
   middleware: (req, res, next) ->
     authHeader = req.header('Authorization')
+    if req.query?.accessToken?
+      authHeader = "Token #{req.query.accessToken}"
 
     unless authHeader
       return next()

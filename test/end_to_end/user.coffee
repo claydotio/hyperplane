@@ -41,6 +41,24 @@ describe 'User Routes', ->
           accessToken: schemas.accessToken
         }, schemas.adminUser
 
+    it 'logs in admin with accessToken in query string', ->
+      flare
+        .post '/users', {},
+          {
+            auth:
+              username: 'admin'
+              password: config.ADMIN_PASSWORD
+          }
+        .expect 200
+        .stash 'admin'
+        .post '/users', {}, {
+          qs:
+            accessToken: ':admin.accessToken'
+        }
+        .expect 200, _.defaults {
+          accessToken: schemas.accessToken
+        }, schemas.adminUser
+
     it 'returns new user with accessToken', ->
       flare
         .post '/users', {app: 'app'}

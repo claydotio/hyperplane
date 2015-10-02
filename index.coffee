@@ -83,8 +83,10 @@ app = express()
 
 app.set 'x-powered-by', false
 
-app.use bodyParser.json()
 app.use cors()
+app.use bodyParser.json()
+# Avoid CORS preflight
+app.use bodyParser.json({type: 'text/plain'})
 app.use AuthService.middleware
 app.use routes
 
