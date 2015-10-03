@@ -84,9 +84,9 @@ app = express()
 app.set 'x-powered-by', false
 
 app.use cors()
-app.use bodyParser.json()
+app.use bodyParser.json({limit: '1mb'})
 # Avoid CORS preflight
-app.use bodyParser.json({type: 'text/plain'})
+app.use bodyParser.json({type: 'text/plain', limit: '1mb'})
 app.use AuthService.middleware
 app.use routes
 

@@ -68,5 +68,15 @@ class EventCtrl
 
     Event.find q
 
+  batch: (req) ->
+    queries = req.body.queries
+    log.info {event: 'event_batch', count: queries.length}
+
+    schemas.assert {queries}, {
+      queries: Joi.array().items Joi.string()
+    }
+
+    Event.batch queries
+
 
 module.exports = new EventCtrl()

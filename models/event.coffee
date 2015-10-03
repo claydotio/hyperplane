@@ -1,13 +1,17 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
 log = require 'loglevel'
+os = require 'os'
 
 InfluxService = require '../services/influxdb'
 redis = require '../services/redis'
 config = require '../config'
 util = require '../lib/util'
 
+OS_CPUS = os.cpus().length
 PREFIX = config.REDIS.PREFIX + ':event'
+QUERY_EXPIRE_TIME_SECONDS = 5 * 60 # 5 min - release all queries back to pool
+UNCACHEABLE_EXPIRE_TIME_SECONDS = 60 * 60 # 1hr
 
 timeSuffixToMs = (time, suffix) ->
   Math.floor switch suffix
@@ -72,6 +76,79 @@ class Event
       log.info "event=event_create, event=#{event},
                 tags=#{JSON.stringify(tags)},
                 fields=#{JSON.stringify(fields)}"
+
+  batch: (queries) ->
+    cacheKeys = _.map queries, (query) -> "#{PREFIX}:batch:#{query}"
+    redis.mgetAsync cacheKeys
+    .then (redisCached) ->
+      # return to the user only what's in redis
+      response = _.map redisCached, (result, index) ->
+        if result?
+          JSON.parse(result)
+        else
+          {query: queries[index], isPending: true}
+
+      return {response, redisCached}
+    .tap ({redisCached}) ->
+      # create redis keys so that other instances know we're working on these
+      uncached = _.filter queries, (query, index) ->
+        not redisCached[index]?
+
+      log.info {event: 'batch_reserve', count: uncached.length}
+
+      if _.isEmpty uncached
+        return null
+
+      redis.msetAsync _.flatten _.map uncached, (query) ->
+        [
+          "#{PREFIX}:batch:#{query}"
+          JSON.stringify {query, isPending: true}
+        ]
+      .then ->
+        # If a response isn't set within QUERY_EXPIRE_TIME_SECONDS, clear it
+        Promise.map uncached, (query) ->
+          redis.expireAsync "#{PREFIX}:batch:#{query}",
+            QUERY_EXPIRE_TIME_SECONDS
+      .then ->
+        # Actually query InfluxDB and store the results in redis
+        startAllTime = new Date()
+        Promise.map uncached, (query) ->
+          totalElapsedMs = new Date() - startAllTime
+          if totalElapsedMs > QUERY_EXPIRE_TIME_SECONDS * 1000
+            log.info {
+              event: 'batch_query'
+              query
+              isSkipped: true
+            }
+            return null
+          startTime = new Date()
+          InfluxService.find query
+          .then (response) ->
+            toCache = {query: query, isPending: false, response}
+            redis.setAsync "#{PREFIX}:batch:#{query}", JSON.stringify toCache
+          .catch (err) ->
+            log.error err
+            redis.delAsync "#{PREFIX}:batch:#{query}"
+          .then ->
+            if not isCacheable query
+              redis.expireAsync "#{PREFIX}:batch:#{query}",
+                UNCACHEABLE_EXPIRE_TIME_SECONDS
+          .then ->
+            log.info {
+              event: 'batch_query'
+              query
+              elapsed: new Date() - startTime
+            }
+        , {concurrency: OS_CPUS}
+      .then ->
+        log.info {event: 'batch_completed', count: uncached.length}
+      .catch log.error
+
+      # Don't block, run in the background
+      return null
+    .then ({response}) ->
+      return {results: response}
+
   find: (q) ->
     queries = _.map q.split('\n'), _.trim
     cacheKeys = _.map queries, (query) -> "#{PREFIX}:#{query}"

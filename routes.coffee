@@ -30,16 +30,6 @@ routePublic 'get', '/ping',
 routePublic 'post', '/users',
   UserCtrl.loginOrCreate
 
-#################
-# Authed Routes #
-#################
-
-route 'post', '/events/:event',
-  EventCtrl.create
-
-route 'get', '/users/me/experiments/:app',
-  UserCtrl.getExperimentsByApp
-
 ###################
 # Admin Routes    #
 ###################
@@ -47,6 +37,9 @@ route 'get', '/users/me/experiments/:app',
 # queries can get long (due to batching), and not fit in a url
 routeAdmin 'post', '/events',
   EventCtrl.find
+
+routeAdmin 'post', '/events/_batch',
+  EventCtrl.batch
 
 routeAdmin 'post', '/experiments',
   ExperimentCtrl.create
@@ -59,5 +52,16 @@ routeAdmin 'put', '/experiments/:id',
 
 routeAdmin 'delete', '/experiments/:id',
   ExperimentCtrl.delete
+
+#################
+# Authed Routes #
+#################
+
+route 'post', '/events/:event',
+  EventCtrl.create
+
+route 'get', '/users/me/experiments/:app',
+  UserCtrl.getExperimentsByApp
+
 
 module.exports = router.getExpressRouter()
