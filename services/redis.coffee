@@ -1,5 +1,5 @@
 redis = require 'redis'
-log = require 'loglevel'
+log = require 'loga'
 Promise = require 'bluebird'
 
 config = require '../config'

@@ -1,7 +1,7 @@
 cors = require 'cors'
 express = require 'express'
 bodyParser = require 'body-parser'
-log = require 'loglevel'
+log = require 'loga'
 fs = require 'fs'
 Promise = require 'bluebird'
 _ = require 'lodash'
@@ -11,8 +11,6 @@ routes = require './routes'
 AuthService = require './services/auth'
 r = require './services/rethinkdb'
 InfluxService = require './services/influxdb'
-
-log.enableAll()
 
 # Setup rethinkdb
 createDatabaseIfNotExist = (dbName) ->

@@ -1,5 +1,5 @@
 #!/usr/bin/env coffee
-log = require 'loglevel'
+log = require 'loga'
 Promise = require 'bluebird'
 
 server = require '../'

@@ -1,5 +1,5 @@
 _ = require 'lodash'
-log = require 'loglevel'
+log = require 'loga'
 
 env = process.env
 

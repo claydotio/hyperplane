@@ -1,4 +1,4 @@
-log = require 'loglevel'
+log = require 'loga'
 
 config = require '../config'
 

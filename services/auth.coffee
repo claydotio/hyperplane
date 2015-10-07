@@ -1,5 +1,5 @@
 jwt = require 'jsonwebtoken'
-log = require 'loglevel'
+log = require 'loga'
 Promise = require 'bluebird'
 
 router = require 'promise-router'

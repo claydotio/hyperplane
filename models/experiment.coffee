@@ -2,7 +2,7 @@ _ = require 'lodash'
 Promise = require 'bluebird'
 uuid = require 'node-uuid'
 seedrandom = require 'seedrandom'
-log = require 'loglevel'
+log = require 'loga'
 
 r = require '../services/rethinkdb'
 config = require '../config'

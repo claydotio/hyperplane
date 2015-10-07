@@ -24,7 +24,7 @@
     "joi": "^6.0.8",
     "jsonwebtoken": "^5.0.1",
     "lodash": "^3.6.0",
-    "loglevel": "^1.2.0",
+    "loga": "^0.1.2",
     "moment-timezone": "^0.4.0",
     "negotiator": "^0.5.3",
     "node-uuid": "^1.4.3",

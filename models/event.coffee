@@ -1,6 +1,6 @@
 _ = require 'lodash'
 Promise = require 'bluebird'
-log = require 'loglevel'
+log = require 'loga'
 os = require 'os'
 
 InfluxService = require '../services/influxdb'

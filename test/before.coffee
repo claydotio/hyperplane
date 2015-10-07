@@ -1,4 +1,4 @@
-log = require 'loglevel'
+log = require 'loga'
 nock = require 'nock'
 Promise = require 'bluebird'
 request = require 'clay-request'
@@ -14,7 +14,7 @@ before ->
   nock.enableNetConnect()
 
   unless config.DEBUG
-    log.disableAll()
+    log.level = null
 
   dropRethink = ->
     r.dbList()

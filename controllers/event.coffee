@@ -1,6 +1,6 @@
 _ = require 'lodash'
 Joi = require 'joi'
-log = require 'loglevel'
+log = require 'loga'
 router = require 'promise-router'
 Promise = require 'bluebird'
 

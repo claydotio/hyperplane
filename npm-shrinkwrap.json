@@ -552,9 +552,14 @@
       "from": "lodash@^3.6.0",
       "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.9.3.tgz"
     },
+    "loga": {
+      "version": "0.1.2",
+      "from": "loga@0.1.2",
+      "resolved": "https://registry.npmjs.org/loga/-/loga-0.1.2.tgz"
+    },
     "loglevel": {
       "version": "1.3.0",
-      "from": "loglevel@^1.2.0",
+      "from": "https://registry.npmjs.org/loglevel/-/loglevel-1.3.0.tgz",
       "resolved": "https://registry.npmjs.org/loglevel/-/loglevel-1.3.0.tgz"
     },
     "moment-timezone": {
