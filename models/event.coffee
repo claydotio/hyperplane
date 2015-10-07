@@ -95,6 +95,7 @@ class Event
         not redisCached[index]?
 
       log.info {event: 'batch_reserve', count: uncached.length}
+      batchStartTime = new Date()
 
       if _.isEmpty uncached
         return null
@@ -111,9 +112,8 @@ class Event
             QUERY_EXPIRE_TIME_SECONDS
       .then ->
         # Actually query InfluxDB and store the results in redis
-        startAllTime = new Date()
         Promise.map uncached, (query) ->
-          totalElapsedMs = new Date() - startAllTime
+          totalElapsedMs = new Date() - batchStartTime
           if totalElapsedMs > QUERY_EXPIRE_TIME_SECONDS * 1000
             log.info {
               event: 'batch_query'
@@ -141,7 +141,11 @@ class Event
             }
         , {concurrency: OS_CPUS}
       .then ->
-        log.info {event: 'batch_completed', count: uncached.length}
+        log.info {
+          event: 'batch_completed'
+          count: uncached.length
+          elapsed: new Date() - batchStartTime
+        }
       .catch log.error
 
       # Don't block, run in the background
