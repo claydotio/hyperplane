@@ -10,7 +10,7 @@ util = require '../lib/util'
 
 OS_CPUS = os.cpus().length
 PREFIX = config.REDIS.PREFIX + ':event'
-QUERY_EXPIRE_TIME_SECONDS = 5 * 60 # 5 min - release all queries back to pool
+QUERY_EXPIRE_TIME_SECONDS = 60 # 1 min - release all queries back to pool
 UNCACHEABLE_EXPIRE_TIME_SECONDS = 60 * 60 # 1hr
 
 timeSuffixToMs = (time, suffix) ->
@@ -96,6 +96,7 @@ class Event
 
       log.info {event: 'batch_reserve', count: uncached.length}
       batchStartTime = new Date()
+      skipCount = 0
 
       if _.isEmpty uncached
         return null
@@ -115,11 +116,7 @@ class Event
         Promise.map uncached, (query) ->
           totalElapsedMs = new Date() - batchStartTime
           if totalElapsedMs > QUERY_EXPIRE_TIME_SECONDS * 1000
-            log.info {
-              event: 'batch_query'
-              query
-              isSkipped: true
-            }
+            skipCount += 1
             return null
           startTime = new Date()
           InfluxService.find query
@@ -143,7 +140,8 @@ class Event
       .then ->
         log.info {
           event: 'batch_completed'
-          count: uncached.length
+          count: uncached.length - skipCount
+          skipped: skipCount
           elapsed: new Date() - batchStartTime
         }
       .catch log.error

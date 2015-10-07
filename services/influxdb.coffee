@@ -1,7 +1,10 @@
 request = require 'clay-request'
 _ = require 'lodash'
+Promise = require 'bluebird'
 
 config = require '../config'
+
+FIND_THROTTLE_DELAY_MS = 10
 
 escape = (str) ->
   str
@@ -30,6 +33,9 @@ join = (obj, quoteStrings) ->
   .join ','
 
 class InfluxService
+  constructor: ->
+    @findThrottle = Promise.resolve null
+
   write: (measurement, tags, fields, timestampNS = '') ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/write",
       method: 'POST'
@@ -39,12 +45,16 @@ class InfluxService
         #{measurement},#{join(tags)} #{join(fields, true)} #{timestampNS}
       """
 
-  find: (q) ->
-    request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {
-      qs:
-        q: q
-        db: config.INFLUX.DB
-    }
+  find: (q) =>
+    @findThrottle = @findThrottle
+    .delay FIND_THROTTLE_DELAY_MS
+    .then ->
+      request \
+      "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {
+        qs:
+          q: q
+          db: config.INFLUX.DB
+      }
 
   createDatabase: (db) ->
     request "http://#{config.INFLUX.HOST}:#{config.INFLUX.PORT}/query", {
