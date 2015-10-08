@@ -4,7 +4,7 @@ Promise = require 'bluebird'
 
 config = require '../config'
 
-FIND_THROTTLE_DELAY_MS = 10
+FIND_THROTTLE_DELAY_MS = 100
 
 escape = (str) ->
   str
