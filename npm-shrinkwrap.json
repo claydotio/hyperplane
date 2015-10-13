@@ -594,9 +594,9 @@
       "resolved": "https://registry.npmjs.org/redis/-/redis-0.12.1.tgz"
     },
     "rethinkdbdash": {
-      "version": "2.0.11",
-      "from": "rethinkdbdash@^2.0.11",
-      "resolved": "https://registry.npmjs.org/rethinkdbdash/-/rethinkdbdash-2.0.11.tgz"
+      "version": "2.1.9",
+      "from": "rethinkdbdash@2.1.9",
+      "resolved": "https://registry.npmjs.org/rethinkdbdash/-/rethinkdbdash-2.1.9.tgz"
     },
     "seedrandom": {
       "version": "2.4.0",
