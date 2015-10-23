@@ -19,11 +19,14 @@ class EventService
     .then (experimentGroups) ->
       _.defaults {
         app: app
-        uaBrowserName: parser.getBrowser().name
-        uaBrowserVersionMajor: parser.getBrowser().major
+        # FIXME: re-add once on updated influxdb cluster
+        # uaBrowserName: parser.getBrowser().name
+        # FIXME: re-add once on updated influxdb cluster
+        # uaBrowserVersionMajor: parser.getBrowser().major
         uaOSName: parser.getOS().name
         uaOSVersion: parser.getOS().version
-        uaDeviceModel: parser.getDevice().model
+        # FIXME: re-add once on updated influxdb cluster
+        # uaDeviceModel: parser.getDevice().model
         language: negotiator.language()
         joinDay: String user.joinDay
         inviterJoinDay: String(user.inviterJoinDay or '') or undefined
@@ -49,7 +52,8 @@ class EventService
     fields = _.defaults {
       userId: user.id
       sessionId: user.sessionId
-      ip: forwardedFor.split(',')[0].trim() or null
+      # FIXME: re-add once on updated influxdb cluster
+      # ip: forwardedFor.split(',')[0].trim() or null
     }, userFields
 
     if inviter
