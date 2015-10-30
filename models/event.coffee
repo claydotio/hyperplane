@@ -10,7 +10,7 @@ util = require '../lib/util'
 
 OS_CPUS = os.cpus().length
 PREFIX = config.REDIS.PREFIX + ':event'
-QUERY_EXPIRE_TIME_SECONDS = 60 # 1 min - release all queries back to pool
+QUERY_EXPIRE_TIME_SECONDS = 5 * 60 # 5 min - release all queries back to pool
 UNCACHEABLE_EXPIRE_TIME_SECONDS = 60 * 60 # 1hr
 
 timeSuffixToMs = (time, suffix) ->
