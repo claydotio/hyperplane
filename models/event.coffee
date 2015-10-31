@@ -113,7 +113,7 @@ class Event
             QUERY_EXPIRE_TIME_SECONDS
       .then ->
         # Actually query InfluxDB and store the results in redis
-        Promise.map uncached, (query) ->
+        Promise.each uncached, (query) ->
           totalElapsedMs = new Date() - batchStartTime
           if totalElapsedMs > QUERY_EXPIRE_TIME_SECONDS * 1000
             skipCount += 1
