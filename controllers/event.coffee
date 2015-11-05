@@ -41,7 +41,7 @@ class EventCtrl
 
     Promise.all [
       EventService.getTags req, req.user, app, userTags
-      EventService.getFields req, req.user, app, userFields
+      EventService.getFields req, req.user, userFields
     ]
     .then ([tags, fields]) ->
       Event.create event, tags, fields, timestamp
@@ -51,7 +51,7 @@ class EventCtrl
         .then (user) ->
           Promise.all [
             EventService.getTags req, user, app, userTags
-            EventService.getFields req, user, app, _.defaults {
+            EventService.getFields req, user, _.defaults {
               value: user.lastSessionEventDelta
             }, userFields
           ]

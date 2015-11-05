@@ -59,7 +59,7 @@ class UserCtrl
         .tap (user) ->
           Promise.all [
             EventService.getTags req, user, app, userTags, inviter
-            EventService.getFields req, user, app, userFields, inviter
+            EventService.getFields req, user, userFields, inviter
           ]
           .then ([tags, fields]) ->
             Event.create JOIN_EVENT_KEY, tags, fields, timestamp
