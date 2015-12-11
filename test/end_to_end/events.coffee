@@ -8,6 +8,74 @@ config = require '../../config'
 util = require './util'
 
 describe 'Event Routes', ->
+  describe 'events.create', ->
+    it 'creates event', ->
+      flare
+        .thru util.exCreateUser()
+        .exoid 'events.create',
+          {
+            event: 'signup'
+            app: 'app'
+            tags:
+              refererHost: 'google.com'
+            fields:
+              value: 1
+          }
+        .expect 200
+        .exoid 'events.create', {app: 'app', event: 'signup'}
+        .expect 200
+
+    describe '400', ->
+      it 'fails to create event with float fields', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'events.create',
+            {
+              event: 'signup'
+              app: 'app'
+              fields:
+                value: 1.1
+            }
+          .expect 400
+
+      it 'fails to create event with non-string tags', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'events.create',
+            {
+              event: 'signup'
+              app: 'app'
+              tags:
+                bool: true
+            }
+          .expect 400
+
+      it 'fails to create event without app', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'events.create', {event: 'signup'}
+          .expect 400
+
+      it 'fails to create event with string as fields', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'events.create', {
+            event: 'signup'
+            app: 'app'
+            fields: 'string'
+          }
+          .expect 400
+
+      it 'fails if isInteractive not a boolean when provided', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'events.create', {
+            event: 'signup'
+            app: 'app'
+            isInteractive: 'false'
+          }
+          .expect 400
+
   describe 'POST /events', ->
     it 'creates event', ->
       flare

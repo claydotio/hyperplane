@@ -25,6 +25,9 @@ adminUser =
   username: User.ADMIN.username
   experimentKey: User.ADMIN.id
 
+auth =
+  accessToken: accessToken
+
 user =
   id: id
   experimentKey: Joi.string()
@@ -65,6 +68,7 @@ module.exports = {
   assert
   id
   appName
+  auth
   user
   adminUser
   accessToken

@@ -41,13 +41,13 @@ ADMIN = defaultUser {
   experimentKey: 'c2cc3b1b-4c6d-4837-93e3-b519d82080ca' # id
 }
 
-generateAccessToken = (user) ->
+generateAccessToken = (userId) ->
   jwt.sign {
-    userId: user.id
+    userId: userId
     scopes: ['*']
   }, config.JWT_SECRET, {
     issuer: config.JWT_ISSUER
-    subject: user.id
+    subject: userId
   }
 
 class UserModel
@@ -57,8 +57,6 @@ class UserModel
     }
   ]
   ADMIN: ADMIN
-
-  generateAccessToken: generateAccessToken
 
   fromAccessToken: (token) =>
     Promise.promisify(jwt.verify, jwt)(
@@ -124,13 +122,16 @@ class UserModel
     .then ->
       _.defaults update, user
 
+  authFromUserId: (userId) ->
+    {accessToken: generateAccessToken userId}
+
   embed: _.curry (embed, user) ->
     embedded = _.merge {}, user
 
     for key in embed
       switch key
         when 'accessToken'
-          embedded.accessToken = generateAccessToken user
+          embedded.accessToken = generateAccessToken user.id
 
     return Promise.props embedded
 

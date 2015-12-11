@@ -8,6 +8,7 @@ _ = require 'lodash'
 
 config = require './config'
 routes = require './routes'
+exoidRoutes = require './exoid_routes'
 AuthService = require './services/auth'
 r = require './services/rethinkdb'
 InfluxService = require './services/influxdb'
@@ -86,6 +87,7 @@ app.use bodyParser.json({limit: '1mb'})
 # Avoid CORS preflight
 app.use bodyParser.json({type: 'text/plain', limit: '1mb'})
 app.use AuthService.middleware
+app.post '/exoid', exoidRoutes.asMiddleware()
 app.use routes
 
 module.exports = {

@@ -31,7 +31,21 @@ createUser = (body) ->
       }
       .as 'user'
 
+exCreateUser = (body) ->
+  return (flare) ->
+    flare
+      .as 'nobody'
+      .exoid 'auth.login', _.merge {app: 'app'}, body
+      .stash 'auth'
+      .actor 'user',
+        qs:
+          accessToken: ':auth.accessToken'
+      .as 'user'
+      .exoid 'users.getMe'
+      .stash 'user'
+
 module.exports = {
   loginAdmin
   createUser
+  exCreateUser
 }
