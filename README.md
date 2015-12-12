@@ -1,5 +1,8 @@
-API Seed
-========
+Hyperplane
+==========
+
+A/B testing service  
+See tests for usage
 
 ### Getting Started
 `npm install`
