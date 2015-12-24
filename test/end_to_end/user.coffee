@@ -142,6 +142,26 @@ describe 'User Routes', ->
           }
           .expect 400
 
+  describe 'users.updateMe', ->
+    it 'updates users experimentKey', ->
+      flare
+        .thru util.exCreateUser()
+        .exoid 'users.updateMe', {experimentKey: 'xxx'}
+        .expect _.defaults {
+          experimentKey: 'xxx'
+        }, schemas.user
+        .exoid 'users.getMe'
+        .expect _.defaults {
+          experimentKey: 'xxx'
+        }, schemas.user
+
+    describe '400', ->
+      it 'fails when invalid experimentKey', ->
+        flare
+          .thru util.exCreateUser()
+          .exoid 'users.updateMe', {experimentKey: 123}
+          .expect 400
+
   describe 'users.getExperimentsByApp', ->
     it 'gets users experiments', ->
       flare
@@ -199,8 +219,41 @@ describe 'User Routes', ->
             weights: [0.5, 0.5]
           }
         .expect 200
-        .thru util.exCreateUser({experimentKey: '2'})
+        .thru util.exCreateUser({experimentKey: 'abc'})
         .exoid 'users.getExperimentsByApp', {app: 'test_override'}
+        .expect 200, Joi.object().keys {
+          override_exp_1: 'red'
+        }
+        .thru util.exCreateUser({experimentKey: 'xyz'})
+        .exoid 'users.getExperimentsByApp', {app: 'test_override'}
+        .expect 200, Joi.object().keys {
+          override_exp_1: 'blue'
+        }
+
+    it 'allows per-query experimentKey overrides', ->
+      flare
+        .thru util.loginAdmin()
+        .post '/experiments',
+          {
+            apps: ['test_override']
+            key: 'override_exp_1'
+            globalPercent: 100
+            choices: ['red', 'blue']
+            weights: [0.5, 0.5]
+          }
+        .expect 200
+        .thru util.exCreateUser()
+        .exoid 'users.getExperimentsByApp', {
+          app: 'test_override'
+          experimentKey: 'abc'
+        }
+        .expect 200, Joi.object().keys {
+          override_exp_1: 'red'
+        }
+        .exoid 'users.getExperimentsByApp', {
+          app: 'test_override'
+          experimentKey: 'xyz'
+        }
         .expect 200, Joi.object().keys {
           override_exp_1: 'blue'
         }

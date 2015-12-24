@@ -53,9 +53,26 @@ class UserCtrl
   getMe: ({}, {user}) ->
     User.sanitize(null, user)
 
+  updateMe: (diff, {user}) ->
+    diff = _.pick diff, [
+      'experimentKey'
+    ]
+
+    if _.isEmpty diff
+      exoidRouter.throw detail: 'invalid diff'
+
+    exoidRouter.assert diff, {
+      experimentKey: schemas.user.experimentKey.optional()
+    }
+
+    User.updateById user.id, diff
+    .then ->
+      User.getById user.id
+    .then User.sanitize(null)
+
   # Exoid route
-  exGetExperimentsByApp: ({app}, {user}) ->
-    Experiment.assignByApp user, app
+  exGetExperimentsByApp: ({app, experimentKey}, {user}) ->
+    Experiment.assignByApp user, app, experimentKey
 
   loginOrCreate: (req) ->
     app = req.body?.app

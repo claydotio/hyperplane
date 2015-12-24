@@ -24,5 +24,6 @@ module.exports = router
 ###################
 .on 'users.getMe', authed UserCtrl.getMe
 .on 'users.getExperimentsByApp', authed UserCtrl.exGetExperimentsByApp
+.on 'users.updateMe', authed UserCtrl.updateMe
 
 .on 'events.create', authed EventCtrl.exCreate
