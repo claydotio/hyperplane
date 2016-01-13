@@ -9,6 +9,7 @@ describe 'Health Check Routes', ->
         .expect 200,
           healthy: true
           rethinkdb: true
+          influxdbWrite: true
           influxdb: true
           redis: true
 
