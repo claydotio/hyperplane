@@ -33,7 +33,7 @@ config =
     DB: env.HYPERPLANE_INFLUX_DB or 'hyperplane'
     HOST: env.INFLUX_HOST or 'localhost'
     PORT: 8086
-    RETENTION_DAYS: 21
+    RETENTION_DAYS: 16
   REDIS:
     PREFIX: env.HYPERPLANE_REDIS_PREFIX or 'hyperplane'
     HOST: env.REDIS_HOST or 'localhost'
