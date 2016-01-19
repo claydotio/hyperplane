@@ -49,7 +49,8 @@ class EventCtrl
             }, userFields
           ]
         .then ([tags, fields]) ->
-          Event.create 'session', tags, fields
+          # TODO: enable once database can handle data
+          # Event.create 'session', tags, fields
     .then ->
       return null
 
@@ -97,7 +98,8 @@ class EventCtrl
             }, userFields
           ]
         .then ([tags, fields]) ->
-          Event.create 'session', tags, fields, timestamp
+          # TODO: enable once database can handle data
+          # Event.create 'session', tags, fields, timestamp
     .then ->
       return null
 
